@@ -4,57 +4,237 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turbo Garage TON</title>
+    <!-- Telegram Web App SDK (requerido para mini apps de Telegram) -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- TonConnect UI - CDN -->
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
-        body { font-family: sans-serif; background: #0a0a0a; color: white; text-align: center; padding: 20px; margin: 0; }
-        /* EL BOTÓN EN LA ESQUINA SUPERIOR DERECHA */
-        #ton-connect-button { position: absolute; top: 20px; right: 20px; }
-        
-        .car-image { width: 90%; max-width: 400px; border-radius: 20px; border: 2px solid #00d4ff; box-shadow: 0 0 20px #00d4ff; margin-top: 60px; }
-        .stats { background: #1a1a1a; padding: 15px; border-radius: 15px; margin: 20px auto; max-width: 400px; }
-        .btn { background: #00d4ff; color: black; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 90%; max-width: 400px; margin-bottom: 10px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0a0a0a;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* Botón TON Connect en esquina superior derecha */
+        #ton-connect-button {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+        }
+
+        h1 {
+            margin-top: 60px;
+            font-size: 1.8em;
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .car-image {
+            width: 90%;
+            max-width: 400px;
+            border-radius: 20px;
+            border: 2px solid #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+            margin-top: 20px;
+        }
+
+        .stats {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 15px;
+            margin: 20px auto;
+            max-width: 400px;
+            border: 1px solid #2a2a2a;
+        }
+
+        .stats p {
+            margin: 8px 0;
+            font-size: 1em;
+        }
+
+        .stats span {
+            color: #00d4ff;
+            font-weight: bold;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #00d4ff, #0099cc);
+            color: black;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            width: 90%;
+            max-width: 400px;
+            margin-bottom: 12px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+            opacity: 0.9;
+        }
+
+        .btn-withdraw {
+            background: linear-gradient(135deg, #ff007a, #cc0062);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #status-msg {
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #888;
+            min-height: 20px;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Contenedor del botón TON Connect -->
     <div id="ton-connect-button"></div>
 
-    <h1>TURBO GARAGE</h1>
+    <h1>🚗 TURBO GARAGE</h1>
 
-    <img src="lucid-origin_Futuristic_cyberpunk_sports_car_oCartoon_style_illustration_of_a_futuristic_spor-0640.jpg" alt="Mi Carro" class="car-image">
+    <!-- Imagen del carro - asegúrate de que el archivo exista en la misma carpeta -->
+    <img
+        src="car.jpg"
+        alt="Mi Carro"
+        class="car-image"
+        onerror="this.style.display='none'"
+    >
 
     <div class="stats">
-        <p>Potencia Actual: <span id="hp">0 HP</span></p>
-        <p>Premios en Pits: <span id="premios">0.00 TON</span></p>
+        <p>⚡ Potencia Actual: <span id="hp">0 HP</span></p>
+        <p>💎 Premios en Pits: <span id="premios">0.00 TON</span></p>
     </div>
 
-    <button class="btn" onclick="comprarMotor()">COMPRAR MOTOR (1 TON)</button>
-    <button class="btn" style="background: #ff007a;" onclick="retirar()">RETIRAR PREMIOS</button>
+    <button class="btn" id="btn-motor" onclick="comprarMotor()">🔧 COMPRAR MOTOR (1 TON)</button>
+    <button class="btn btn-withdraw" onclick="retirar()">💰 RETIRAR PREMIOS</button>
+
+    <p id="status-msg"></p>
 
     <script>
-        const tonConnectUI = new TONConnectUI.TonConnectUI({
+        // =============================================
+        // 1. INICIALIZAR TONCONNECT UI
+        // =============================================
+        // IMPORTANTE: El global del CDN es TON_CONNECT_UI (no TONConnectUI)
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://turbo-garage-two.vercel.app/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-button'
         });
 
+        // =============================================
+        // 2. ESTADO DE LA APP
+        // =============================================
+        let hp = 0;
+        let premios = 0;
+        const statusMsg = document.getElementById('status-msg');
+
+        function mostrarMensaje(texto, color = '#888') {
+            statusMsg.textContent = texto;
+            statusMsg.style.color = color;
+        }
+
+        // =============================================
+        // 3. VERIFICAR CONEXIÓN ANTES DE TRANSACCIÓN
+        // =============================================
+        function estaConectado() {
+            return tonConnectUI.connected;
+        }
+
+        // =============================================
+        // 4. COMPRAR MOTOR - Envía 1 TON
+        // =============================================
         async function comprarMotor() {
+            // Verificar que la wallet esté conectada
+            if (!estaConectado()) {
+                mostrarMensaje('⚠️ Primero conecta tu wallet', '#ffaa00');
+                // Abrir el modal de conexión automáticamente
+                tonConnectUI.openModal();
+                return;
+            }
+
+            const btnMotor = document.getElementById('btn-motor');
+            btnMotor.disabled = true;
+            mostrarMensaje('⏳ Procesando transacción...', '#00d4ff');
+
             const transaction = {
-                validUntil: Math.floor(Date.now() / 1000) + 60,
+                validUntil: Math.floor(Date.now() / 1000) + 300, // 5 minutos de validez
                 messages: [{
-                    address: "EQCObIMiCLIWIdT9FVPZWz5jAWocxqhu6bYzwtJzEkkHAsa",
-                    amount: "1000000000"
+                    address: "UQCObIMiCLIWIdT9FVPZWz5jAWocxqhu6bYzwtJzEkkHAsaY",
+                    amount: "1000000000" // 1 TON en nanotons
                 }]
             };
+
             try {
                 await tonConnectUI.sendTransaction(transaction);
-                alert("¡Motor comprado!");
+                hp += 100;
+                document.getElementById('hp').textContent = hp + ' HP';
+                mostrarMensaje('✅ ¡Motor comprado! +100 HP', '#00ff88');
             } catch (e) {
-                alert("Transacción cancelada.");
+                console.error('Error en transacción:', e);
+                if (e.message && e.message.includes('rejected')) {
+                    mostrarMensaje('❌ Transacción rechazada por el usuario', '#ff4444');
+                } else {
+                    mostrarMensaje('❌ Transacción cancelada', '#ff4444');
+                }
+            } finally {
+                btnMotor.disabled = false;
             }
         }
 
+        // =============================================
+        // 5. RETIRAR PREMIOS
+        // =============================================
         function retirar() {
-            alert("Próximamente: Retira tus premios.");
+            if (!estaConectado()) {
+                mostrarMensaje('⚠️ Primero conecta tu wallet', '#ffaa00');
+                tonConnectUI.openModal();
+                return;
+            }
+
+            if (premios <= 0) {
+                mostrarMensaje('ℹ️ No tienes premios para retirar', '#888');
+                return;
+            }
+
+            mostrarMensaje('🔜 Próximamente: Retiro de premios', '#ffaa00');
+        }
+
+        // =============================================
+        // 6. ESCUCHAR CAMBIOS DE CONEXIÓN
+        // =============================================
+        tonConnectUI.onStatusChange((wallet) => {
+            if (wallet) {
+                mostrarMensaje('✅ Wallet conectada', '#00ff88');
+                console.log('Wallet conectada:', wallet.account.address);
+            } else {
+                mostrarMensaje('Wallet desconectada', '#888');
+            }
+        });
+
+        // Inicializar Telegram Web App
+        if (window.Telegram && window.Telegram.WebApp) {
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
         }
     </script>
 </body>
