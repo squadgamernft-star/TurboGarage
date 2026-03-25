@@ -6,11 +6,13 @@
     <title>Turbo Garage TON</title>
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
-        body { font-family: sans-serif; background: #0a0a0a; color: white; text-align: center; padding: 20px; }
-        .car-image { width: 90%; max-width: 400px; border-radius: 20px; border: 2px solid #00d4ff; box-shadow: 0 0 20px #00d4ff; margin-top: 20px; }
-        .stats { background: #1a1a1a; padding: 15px; border-radius: 15px; margin: 20px 0; }
-        .btn { background: #00d4ff; color: black; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 100%; margin-bottom: 10px; }
-        #ton-connect-button { display: flex; justify-content: center; margin-bottom: 20px; }
+        body { font-family: sans-serif; background: #0a0a0a; color: white; text-align: center; padding: 20px; margin: 0; }
+        /* EL BOTÓN EN LA ESQUINA SUPERIOR DERECHA */
+        #ton-connect-button { position: absolute; top: 20px; right: 20px; }
+        
+        .car-image { width: 90%; max-width: 400px; border-radius: 20px; border: 2px solid #00d4ff; box-shadow: 0 0 20px #00d4ff; margin-top: 60px; }
+        .stats { background: #1a1a1a; padding: 15px; border-radius: 15px; margin: 20px auto; max-width: 400px; }
+        .btn { background: #00d4ff; color: black; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; width: 90%; max-width: 400px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -38,12 +40,10 @@
         async function comprarMotor() {
             const transaction = {
                 validUntil: Math.floor(Date.now() / 1000) + 60,
-                messages: [
-                    {
-                        address: "EQCObIMiCLIWIdT9FVPZWz5jAWocxqhu6bYzwtJzEkkHAsa",
-                        amount: "1000000000"
-                    }
-                ]
+                messages: [{
+                    address: "EQCObIMiCLIWIdT9FVPZWz5jAWocxqhu6bYzwtJzEkkHAsa",
+                    amount: "1000000000"
+                }]
             };
             try {
                 await tonConnectUI.sendTransaction(transaction);
@@ -54,7 +54,7 @@
         }
 
         function retirar() {
-            alert("Próximamente: Retira tus ganancias acumuladas.");
+            alert("Próximamente: Retira tus premios.");
         }
     </script>
 </body>
