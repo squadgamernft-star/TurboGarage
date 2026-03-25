@@ -18,8 +18,6 @@
 
     <h1>TURBO GARAGE</h1>
     ...
-    
-    <div id="ton-connect-button"></div>
 
 <img src="lucid-origin_Futuristic_cyberpunk_sports_car_oCartoon_style_illustration_of_a_futuristic_spor-0640.jpg" alt="Mi Carro" class="car-image">
         <p>Potencia Actual: <span id="hp">0 HP</span></p>
@@ -30,29 +28,28 @@
     <button class="btn" style="background: #ff007a;" onclick="retirar()">RETIRAR PREMIOS</button>
 
    <script>
-        // Configuración de la Wallet
-        const tonConnectUI = new TONConnectUI.TonConnectUI({
-            manifestUrl: 'https://turbo-garage-two.vercel.app/tonconnect-manifest.json',
-            buttonRootId: 'ton-connect-button'
-        });
+    // Configuración de la Wallet
+    const tonConnectUI = new TONConnectUI.TonConnectUI({
+        manifestUrl: 'https://turbo-garage-two.vercel.app/tonconnect-manifest.json',
+        buttonRootId: 'ton-connect-button'
+    });
 
-        async function comprarMotor() {
-            const transaction = {
-                validUntil: Math.floor(Date.now() / 1000) + 60,
-                messages: [
-                    {
-                        address: "EQCObIMiCLIWIdT9FVPZWz5jAWocxqhu6bYzwtJzEkkHAsa", // Tu contrato
-                        amount: "1000000000" // 1 TON en nanoton
-                    }
-                ]
-            };
-            try {
-                await tonConnectUI.sendTransaction(transaction);
-                alert("¡Motor en camino! Tu potencia subirá en breve.");
-            } catch (e) {
-                console.error(e);
-                alert("Transacción cancelada.");
-            }
+    async function comprarMotor() {
+        const transaction = {
+            validUntil: Math.floor(Date.now() / 1000) + 60,
+            messages: [
+                {
+                    address: "EQCObIMiCLIWIdT9FVPZWz5jAWocxqhu6bYzwtJzEkkHAsa", 
+                    amount: "1000000000" // 1 TON
+                }
+            ]
+        };
+        try {
+            await tonConnectUI.sendTransaction(transaction);
+            alert("¡Motor comprado!");
+        } catch (e) {
+            console.error(e);
+            alert("Transacción cancelada.");
         }
-    </script>
-        
+    }
+</script>
