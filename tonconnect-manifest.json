@@ -1,5 +1,7 @@
 {
-  "url": "https://turbo-garage-two.vercel.app",
-  "name": "Turbo Garage",
-  "iconUrl": "https://turbo-garage-two.vercel.app/lucid-origin_Futuristic_cyberpunk_sports_car_oCartoon_style_illustration_of_a_futuristic_spor-0.jpg"
+    "url": "https://turbo-garage-two.vercel.app",
+    "name": "Turbo Garage",
+    "iconUrl": "https://turbo-garage-two.vercel.app/icon.png",
+    "termsOfUseUrl": "",
+    "privacyPolicyUrl": ""
 }
