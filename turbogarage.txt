@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Turbo Garage TON</title>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <style>
+        body { font-family: sans-serif; background: #0a0a0a; color: white; text-align: center; padding: 20px; }
+        .car-image { width: 90%; max-width: 400px; border-radius: 20px; border: 2px solid #00d4ff; box-shadow: 0 0 20px #00d4ff; }
+        .stats { background: #1a1a1a; padding: 15px; border-radius: 15px; margin: 20px 0; }
+        .btn { background: #00d4ff; color: black; border: none; padding: 15px 30px; border-radius: 10px; font-weight: bold; cursor: pointer; margin: 10px; width: 80%; }
+        #ton-connect-button { display: flex; justify-content: center; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <h1>TURBO GARAGE</h1>
+    
+    <div id="ton-connect-button"></div>
+
+    <img src="https://tu-imagen-aqui.jpg" alt="Mi Carro" class="car-image">
+
+    <div class="stats">
+        <p>Potencia Actual: <span id="hp">0 HP</span></p>
+        <p>Premios en Pits: <span id="premios">0.00 TON</span></p>
+    </div>
+
+    <button class="btn" onclick="comprarMotor()">COMPRAR MOTOR (1 TON)</button>
+    <button class="btn" style="background: #ff007a;" onclick="retirar()">RETIRAR PREMIOS</button>
+
+    <script>
+        // Configuración de la Wallet
+        const tonConnectUI = new TONConnectUI.TonConnectUI({
+            manifestUrl: 'https://tu-juego.vercel.app/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-button'
+        });
+
+        function comprarMotor() {
+            alert("Enviando transacción de 1 TON...");
+            // Aquí conectaremos luego con la dirección de tu contrato
+        }
+    </script>
+</body>
+</html>
