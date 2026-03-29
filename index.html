@@ -9,140 +9,390 @@
     <!-- TonConnect UI - CDN -->
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap');
 
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #0a0a0a;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at center, #151515 0%, #050505 100%);
             color: white;
-            text-align: center;
-            padding: 20px;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
         }
 
-        /* Botón TON Connect en esquina superior derecha */
+        /* Barra de estadísticas superior */
+        .top-bar {
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(0, 212, 255, 0.15);
+            backdrop-filter: blur(10px);
+            font-size: 0.85em;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            color: #aaa;
+        }
+
+        .stats-container span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9em;
+        }
+
+        .stats-container strong {
+            color: #00d4ff;
+            font-weight: 600;
+            font-size: 1.1em;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+        }
+
         #ton-connect-button {
-            position: fixed;
-            top: 15px;
-            right: 15px;
             z-index: 1000;
         }
 
+        /* Contenido Principal */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 20px;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .title-container {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
         h1 {
-            margin-top: 60px;
-            font-size: 1.8em;
+            font-size: 2.5em;
+            font-weight: 800;
             background: linear-gradient(90deg, #00d4ff, #00ff88);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* Layout Grid Desktop */
+        .layout-grid {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            align-items: center;
+            gap: 60px;
+            margin-bottom: 40px;
+        }
+
+        /* Contenedor del Carro */
+        .car-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
 
         .car-image {
-            width: 90%;
-            max-width: 400px;
-            border-radius: 20px;
-            border: 2px solid #00d4ff;
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
-            margin-top: 20px;
+            width: 100%;
+            border-radius: 16px;
+            border: 2px solid rgba(0, 212, 255, 0.8);
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.5), inset 0 0 20px rgba(0, 212, 255, 0.3);
+            background: #000;
+            display: block;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+            z-index: 2;
         }
 
-        .stats {
-            background: #1a1a1a;
-            padding: 15px;
-            border-radius: 15px;
-            margin: 20px auto;
-            max-width: 400px;
-            border: 1px solid #2a2a2a;
+        .car-image:hover {
+            transform: scale(1.03) translateY(-5px);
+            box-shadow: 0 10px 50px rgba(0, 212, 255, 0.6), inset 0 0 30px rgba(0, 212, 255, 0.4);
         }
 
-        .stats p {
-            margin: 8px 0;
-            font-size: 1em;
+        /* Base Brillante para el carro */
+        .car-base-glow {
+            position: absolute;
+            bottom: 60px;
+            width: 80%;
+            height: 20px;
+            background: #00d4ff;
+            filter: blur(40px);
+            opacity: 0.5;
+            z-index: 1;
         }
 
-        .stats span {
-            color: #00d4ff;
-            font-weight: bold;
+        /* Columnas de Menú */
+        .menu-column {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            min-width: 220px;
         }
 
-        .btn {
-            background: linear-gradient(135deg, #00d4ff, #0099cc);
-            color: black;
+        /* Estilo Sostificado para Botones de Texto Blanco */
+        .word-btn {
+            background: transparent;
+            color: #ffffff;
             border: none;
-            padding: 15px 30px;
+            padding: 12px 15px;
+            font-size: 1.15em;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            position: relative;
+            text-align: center;
+            transition: all 0.3s ease;
+            text-transform: capitalize;
+            letter-spacing: 1px;
+            opacity: 0.85;
+            text-shadow: 0 0 5px rgba(255,255,255,0.2);
+            outline: none;
+        }
+
+        /* Efecto de subrayado glow */
+        .word-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            transition: width 0.35s ease, opacity 0.35s ease;
+            opacity: 0;
+        }
+
+        .word-btn:hover {
+            opacity: 1;
+            color: #fff;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 0 25px rgba(0, 212, 255, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .word-btn:hover::after {
+            width: 80%;
+            opacity: 1;
+        }
+
+        .word-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Botón estilo premium para Funcionalidades base (Comprar Motor) */
+        .primary-btn {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 153, 204, 0.15));
+            border: 1px solid rgba(0, 212, 255, 0.4);
+            color: #00d4ff;
+            padding: 14px 30px;
             border-radius: 10px;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 1em;
             cursor: pointer;
-            width: 90%;
-            max-width: 400px;
-            margin-bottom: 12px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-            transition: opacity 0.2s, transform 0.1s;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            backdrop-filter: blur(5px);
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            z-index: 3;
         }
 
-        .btn:active {
-            transform: scale(0.97);
-            opacity: 0.9;
+        .primary-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-20deg);
+            transition: 0.5s;
         }
 
-        .btn-withdraw {
-            background: linear-gradient(135deg, #ff007a, #cc0062);
-            color: white;
+        .primary-btn:hover::before {
+            left: 150%;
         }
 
-        .btn:disabled {
+        .primary-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 153, 204, 0.3));
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            color: #ffffff;
+            border-color: #00d4ff;
+        }
+        
+        .primary-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Menú Inferior */
+        .bottom-menu {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .bottom-menu .word-btn {
+            font-size: 1.3em;
+            font-weight: 600;
+            letter-spacing: 1.5px;
         }
 
         #status-msg {
-            margin-top: 15px;
-            font-size: 0.9em;
+            margin-top: 20px;
+            font-size: 1em;
             color: #888;
-            min-height: 20px;
+            min-height: 24px;
+            text-align: center;
+            padding: 10px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
+
+        /* Diseño Responsivo (Mobile) */
+        @media (max-width: 900px) {
+            .layout-grid {
+                flex-direction: column;
+                gap: 40px;
+            }
+            .menu-column {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+            .car-container {
+                order: -1; /* El carro va arriba en móviles */
+                max-width: 90%;
+            }
+            .top-bar {
+                padding: 15px;
+            }
+        }
+        
+        @media (max-width: 500px) {
+            .menu-column {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+            .top-bar {
+                justify-content: center;
+                flex-direction: column;
+                text-align: center;
+                gap: 20px;
+            }
+            .stats-container {
+                justify-content: center;
+                gap: 15px;
+            }
+            #ton-connect-button {
+                position: static;
+            }
+            h1 {
+                font-size: 2em;
+            }
+        }
+
     </style>
 </head>
 <body>
 
-    <!-- Contenedor del botón TON Connect -->
-    <div id="ton-connect-button"></div>
-
-    <h1>🚗 TURBO GARAGE</h1>
-
-    <!-- Imagen del carro - asegúrate de que el archivo exista en la misma carpeta -->
-    <img
-        src="car.jpg"
-        alt="Mi Carro"
-        class="car-image"
-    >
-
-    <div class="stats">
-        <p>⚡ Potencia Actual: <span id="hp">0 HP</span></p>
-        <p>💎 Premios en Pits: <span id="premios">0.00 TON</span></p>
+    <!-- Barra Superior -->
+    <div class="top-bar">
+        <div class="stats-container">
+            <span>Total de puntaje: <strong id="puntaje">0</strong></span>
+            <span>Tipo de nivel: <strong id="nivel">1</strong></span>
+            <span>Cantidad de gemas: <strong id="gemas">0</strong></span>
+            <span>Cartucho de gasolina: <strong id="gasolina">100%</strong></span>
+            <span>Potencia Motor: <strong id="hp">0 HP</strong></span>
+        </div>
+        <div id="ton-connect-button"></div>
     </div>
 
-    <button class="btn" id="btn-motor" onclick="comprarMotor()">🔧 COMPRAR MOTOR (1 TON)</button>
-    <button class="btn btn-withdraw" onclick="retirar()">💰 RETIRAR PREMIOS</button>
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <div class="title-container">
+            <h1>🚗 TURBO GARAGE</h1>
+        </div>
 
+        <div class="layout-grid">
+            <!-- Menú Izquierdo -->
+            <div class="menu-column left-menu">
+                <button class="word-btn">Recompensa diaria</button>
+                <button class="word-btn">Logros</button>
+                <button class="word-btn">Nivel</button>
+                <!-- Retirar conectado a "Retiro de gemas" para mantener la función -->
+                <button class="word-btn" onclick="retirar()">Retiro de gemas</button>
+                <button class="word-btn">Duelo urbano</button>
+            </div>
+
+            <!-- Carro Central -->
+            <div class="car-container">
+                <div class="car-base-glow"></div>
+                <!-- Imagen del carro -->
+                <img src="car.jpg" alt="Mi Carro" class="car-image">
+                
+                <!-- Botón Antiguo Adaptado a Premium -->
+                <button class="primary-btn" id="btn-motor" onclick="comprarMotor()">⚙️ Comprar Motor (1 TON)</button>
+            </div>
+
+            <!-- Menú Derecho -->
+            <div class="menu-column right-menu">
+                <button class="word-btn">Recompensa oro</button>
+                <button class="word-btn">Garage</button>
+                <button class="word-btn">Ranking</button>
+                <button class="word-btn">Deposito de Gemas</button>
+                <button class="word-btn">Duelo Callejero</button>
+            </div>
+        </div>
+
+        <!-- Menú Inferior -->
+        <div class="bottom-menu">
+            <button class="word-btn">Torneo</button>
+            <button class="word-btn">Market Place</button>
+        </div>
+    </div>
+
+    <!-- Mensajes de Estado del Sistema -->
     <p id="status-msg"></p>
 
     <script>
         // =============================================
-        // 1. INICIALIZAR TONCONNECT UI
+        // 1. INICIALIZAR TONCONNECT UI 
         // =============================================
-        // IMPORTANTE: El global del CDN es TON_CONNECT_UI (no TONConnectUI)
         const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
             manifestUrl: 'https://turbo-garage-two.vercel.app/tonconnect-manifest.json',
             buttonRootId: 'ton-connect-button'
         });
 
-        // =============================================
-        // 2. ESTADO DE LA APP
-        // =============================================
         let hp = 0;
         let premios = 0;
         const statusMsg = document.getElementById('status-msg');
@@ -150,23 +400,12 @@
         function mostrarMensaje(texto, color = '#888') {
             statusMsg.textContent = texto;
             statusMsg.style.color = color;
+            statusMsg.style.textShadow = `0 0 10px ${color}55`;
         }
 
-        // =============================================
-        // 3. VERIFICAR CONEXIÓN ANTES DE TRANSACCIÓN
-        // =============================================
-        function estaConectado() {
-            return tonConnectUI.connected;
-        }
-
-        // =============================================
-        // 4. COMPRAR MOTOR - Envía 1 TON
-        // =============================================
         async function comprarMotor() {
-            // Verificar que la wallet esté conectada
-            if (!estaConectado()) {
+            if (!tonConnectUI.connected) {
                 mostrarMensaje('⚠️ Primero conecta tu wallet', '#ffaa00');
-                // Abrir el modal de conexión automáticamente
                 tonConnectUI.openModal();
                 return;
             }
@@ -176,10 +415,10 @@
             mostrarMensaje('⏳ Procesando transacción...', '#00d4ff');
 
             const transaction = {
-                validUntil: Math.floor(Date.now() / 1000) + 300, // 5 minutos de validez
+                validUntil: Math.floor(Date.now() / 1000) + 300,
                 messages: [{
-                    address: "UQBRgN0tRJmDZg_9OahzY13vpP7VNOYYzFxDGLbza1mbXjox",
-                    amount: "1000000000" // 1 TON en nanotons
+                    address: "UQCObIMiCLIWIdT9FVPZWz5jAWocxqhu6bYzwtJzEkkHAsaY",
+                    amount: "1000000000"
                 }]
             };
 
@@ -190,50 +429,38 @@
                 mostrarMensaje('✅ ¡Motor comprado! +100 HP', '#00ff88');
             } catch (e) {
                 console.error('Error en transacción:', e);
-                if (e.message && e.message.includes('rejected')) {
-                    mostrarMensaje('❌ Transacción rechazada por el usuario', '#ff4444');
-                } else {
-                    mostrarMensaje('❌ Transacción cancelada', '#ff4444');
-                }
+                mostrarMensaje('❌ Transacción cancelada', '#ff4444');
             } finally {
                 btnMotor.disabled = false;
             }
         }
 
-        // =============================================
-        // 5. RETIRAR PREMIOS
-        // =============================================
         function retirar() {
-            if (!estaConectado()) {
+            if (!tonConnectUI.connected) {
                 mostrarMensaje('⚠️ Primero conecta tu wallet', '#ffaa00');
                 tonConnectUI.openModal();
                 return;
             }
-
-            if (premios <= 0) {
-                mostrarMensaje('ℹ️ No tienes premios para retirar', '#888');
-                return;
-            }
-
-            mostrarMensaje('🔜 Próximamente: Retiro de premios', '#ffaa00');
+            mostrarMensaje('🔜 Próximamente: Retiro de gemas', '#ffaa00');
         }
 
-        // =============================================
-        // 6. ESCUCHAR CAMBIOS DE CONEXIÓN
-        // =============================================
         tonConnectUI.onStatusChange((wallet) => {
             if (wallet) {
                 mostrarMensaje('✅ Wallet conectada', '#00ff88');
-                console.log('Wallet conectada:', wallet.account.address);
             } else {
                 mostrarMensaje('Wallet desconectada', '#888');
             }
         });
 
-        // Inicializar Telegram Web App
+        // =============================================
+        // SDK DE TELEGRAM
+        // =============================================
         if (window.Telegram && window.Telegram.WebApp) {
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
+            // Match the top bar background color natively in TG
+            Telegram.WebApp.setHeaderColor('#151515');
+            Telegram.WebApp.setBackgroundColor('#050505');
         }
     </script>
 </body>
