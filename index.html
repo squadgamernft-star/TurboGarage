@@ -4,18 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Turbo Garage TON</title>
-    <!-- Telegram Web App SDK (requerido para mini apps de Telegram) -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- TonConnect UI - CDN -->
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap');
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+
+        :root {
+            --cyan: #00d4ff;
+            --green: #00ff88;
+            --orange: #ff8c00;
+            --red: #ff4444;
+            --gold: #ffd700;
+            --bg: #080808;
+            --surface: rgba(255,255,255,0.04);
+            --border: rgba(0,212,255,0.2);
+        }
+
         body {
-            font-family: 'Inter', 'Segoe UI', sans-serif;
-            background: radial-gradient(circle at center, #151515 0%, #050505 100%);
+            font-family: 'Rajdhani', sans-serif;
+            background: radial-gradient(ellipse at 30% 20%, #0d1a1a 0%, #050505 60%);
             color: white;
             min-height: 100vh;
             display: flex;
@@ -23,157 +31,146 @@
             overflow-x: hidden;
         }
 
-        /* Barra de estadísticas superior */
+        /* ─── TOP BAR ─── */
         .top-bar {
-            padding: 15px 30px;
+            padding: 12px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.03);
-            border-bottom: 1px solid rgba(0, 212, 255, 0.15);
-            backdrop-filter: blur(10px);
-            font-size: 0.85em;
+            background: rgba(0,0,0,0.6);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(12px);
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 12px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
         .stats-container {
             display: flex;
-            gap: 25px;
+            gap: 20px;
             flex-wrap: wrap;
-            color: #aaa;
+            color: #888;
+            font-size: 0.82em;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
         }
 
         .stats-container span {
             display: flex;
             align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.9em;
+            gap: 6px;
         }
 
         .stats-container strong {
-            color: #00d4ff;
-            font-weight: 600;
+            color: var(--cyan);
+            font-weight: 700;
             font-size: 1.1em;
-            text-shadow: 0 0 10px rgba(0, 212, 255, 0.4);
+            text-shadow: 0 0 8px rgba(0,212,255,0.5);
         }
 
-        #ton-connect-button {
-            z-index: 1000;
-        }
+        #ton-connect-button { z-index: 1000; }
 
-        /* Contenido Principal */
+        /* ─── MAIN CONTENT ─── */
         .main-content {
             flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 30px 20px;
+            padding: 25px 20px 40px;
             width: 100%;
-            max-width: 1200px;
+            max-width: 1100px;
             margin: 0 auto;
         }
 
-        .title-container {
-            text-align: center;
-            margin-bottom: 40px;
-        }
+        .title-container { text-align: center; margin-bottom: 35px; }
 
         h1 {
-            font-size: 2.5em;
-            font-weight: 800;
-            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.3em;
+            font-weight: 900;
+            background: linear-gradient(90deg, var(--cyan), var(--green));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
+            letter-spacing: 4px;
         }
 
-        /* Layout Grid Desktop */
+        h1 .emoji { -webkit-text-fill-color: initial; }
+
+        /* ─── LAYOUT ─── */
         .layout-grid {
             display: flex;
             width: 100%;
             justify-content: center;
             align-items: center;
-            gap: 60px;
-            margin-bottom: 40px;
+            gap: 50px;
+            margin-bottom: 35px;
         }
 
-        /* Contenedor del Carro */
         .car-container {
             position: relative;
             width: 100%;
-            max-width: 500px;
+            max-width: 460px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 18px;
+        }
+
+        .car-base-glow {
+            position: absolute;
+            bottom: 65px;
+            width: 75%;
+            height: 18px;
+            background: var(--cyan);
+            filter: blur(35px);
+            opacity: 0.45;
+            z-index: 1;
         }
 
         .car-image {
             width: 100%;
-            border-radius: 16px;
-            border: 2px solid rgba(0, 212, 255, 0.8);
-            box-shadow: 0 0 40px rgba(0, 212, 255, 0.5), inset 0 0 20px rgba(0, 212, 255, 0.3);
+            border-radius: 14px;
+            border: 2px solid rgba(0,212,255,0.7);
+            box-shadow: 0 0 35px rgba(0,212,255,0.4), inset 0 0 15px rgba(0,212,255,0.2);
             background: #000;
             display: block;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+            transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275), box-shadow 0.4s ease;
             z-index: 2;
         }
 
         .car-image:hover {
             transform: scale(1.03) translateY(-5px);
-            box-shadow: 0 10px 50px rgba(0, 212, 255, 0.6), inset 0 0 30px rgba(0, 212, 255, 0.4);
+            box-shadow: 0 10px 45px rgba(0,212,255,0.6);
         }
 
-        /* Base Brillante para el carro */
-        .car-base-glow {
-            position: absolute;
-            bottom: 60px;
-            width: 80%;
-            height: 20px;
-            background: #00d4ff;
-            filter: blur(40px);
-            opacity: 0.5;
-            z-index: 1;
-        }
-
-        /* Columnas de Menú */
+        /* ─── MENU COLUMNS ─── */
         .menu-column {
             display: flex;
             flex-direction: column;
-            gap: 25px;
-            min-width: 220px;
+            gap: 22px;
+            min-width: 200px;
         }
 
-        /* Estilo Sostificado para Botones de Texto Blanco */
         .word-btn {
             background: transparent;
-            color: #ffffff;
+            color: #ccc;
             border: none;
-            padding: 12px 15px;
-            font-size: 1.15em;
-            font-weight: 500;
-            font-family: inherit;
+            padding: 10px 12px;
+            font-size: 1.1em;
+            font-weight: 600;
+            font-family: 'Rajdhani', sans-serif;
             cursor: pointer;
             position: relative;
             text-align: center;
             transition: all 0.3s ease;
             text-transform: capitalize;
             letter-spacing: 1px;
-            opacity: 0.85;
-            text-shadow: 0 0 5px rgba(255,255,255,0.2);
             outline: none;
         }
 
-        /* Efecto de subrayado glow */
         .word-btn::after {
             content: '';
             position: absolute;
@@ -182,41 +179,34 @@
             transform: translateX(-50%);
             width: 0;
             height: 2px;
-            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
             transition: width 0.35s ease, opacity 0.35s ease;
             opacity: 0;
         }
 
         .word-btn:hover {
-            opacity: 1;
             color: #fff;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 0 25px rgba(0, 212, 255, 0.6);
+            text-shadow: 0 0 10px rgba(255,255,255,0.7), 0 0 22px rgba(0,212,255,0.5);
             transform: translateY(-2px);
         }
 
-        .word-btn:hover::after {
-            width: 80%;
-            opacity: 1;
-        }
+        .word-btn:hover::after { width: 80%; opacity: 1; }
+        .word-btn:active { transform: translateY(0); }
 
-        .word-btn:active {
-            transform: translateY(0);
-        }
-
-        /* Botón estilo premium para Funcionalidades base (Comprar Motor) */
+        /* ─── MARKETPLACE BTN (was Comprar Motor) ─── */
         .primary-btn {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(0, 153, 204, 0.15));
-            border: 1px solid rgba(0, 212, 255, 0.4);
-            color: #00d4ff;
-            padding: 14px 30px;
+            background: linear-gradient(135deg, rgba(0,212,255,0.12), rgba(0,153,204,0.12));
+            border: 1px solid rgba(0,212,255,0.5);
+            color: var(--cyan);
+            padding: 14px 28px;
             border-radius: 10px;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 1em;
+            font-family: 'Orbitron', sans-serif;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 2px;
-            backdrop-filter: blur(5px);
             width: 100%;
             position: relative;
             overflow: hidden;
@@ -228,238 +218,908 @@
             position: absolute;
             top: 0; left: -100%;
             width: 50%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
             transform: skewX(-20deg);
             transition: 0.5s;
         }
 
-        .primary-btn:hover::before {
-            left: 150%;
-        }
+        .primary-btn:hover::before { left: 150%; }
 
         .primary-btn:hover {
-            background: linear-gradient(135deg, rgba(0, 212, 255, 0.3), rgba(0, 153, 204, 0.3));
-            box-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
-            color: #ffffff;
-            border-color: #00d4ff;
+            background: linear-gradient(135deg, rgba(0,212,255,0.25), rgba(0,153,204,0.25));
+            box-shadow: 0 0 25px rgba(0,212,255,0.5);
+            color: #fff;
         }
-        
+
         .primary-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.4;
             cursor: not-allowed;
             pointer-events: none;
         }
 
-        /* Menú Inferior */
+        /* ─── BOTTOM MENU ─── */
         .bottom-menu {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            margin-top: 20px;
-            width: 100%;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 10px;
         }
 
         .bottom-menu .word-btn {
-            font-size: 1.3em;
-            font-weight: 600;
+            font-size: 1.25em;
+            font-weight: 700;
             letter-spacing: 1.5px;
         }
 
         #status-msg {
-            margin-top: 20px;
+            margin-top: 18px;
             font-size: 1em;
             color: #888;
             min-height: 24px;
             text-align: center;
-            padding: 10px;
-            font-weight: 500;
+            padding: 8px;
+            font-weight: 600;
             letter-spacing: 0.5px;
         }
 
-        /* Diseño Responsivo (Mobile) */
-        @media (max-width: 900px) {
-            .layout-grid {
-                flex-direction: column;
-                gap: 40px;
-            }
-            .menu-column {
-                width: 100%;
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-            }
-            .car-container {
-                order: -1; /* El carro va arriba en móviles */
-                max-width: 90%;
-            }
-            .top-bar {
-                padding: 15px;
-            }
-        }
-        
-        @media (max-width: 500px) {
-            .menu-column {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-            .top-bar {
-                justify-content: center;
-                flex-direction: column;
-                text-align: center;
-                gap: 20px;
-            }
-            .stats-container {
-                justify-content: center;
-                gap: 15px;
-            }
-            #ton-connect-button {
-                position: static;
-            }
-            h1 {
-                font-size: 2em;
-            }
+        /* ─── MODAL OVERLAY ─── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
 
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: linear-gradient(145deg, #111 0%, #0a0a0a 100%);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 0 60px rgba(0,212,255,0.2);
+            position: relative;
+            animation: modalIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275);
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.85) translateY(30px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-header {
+            padding: 22px 25px 18px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: #111;
+            border-radius: 18px 18px 0 0;
+            z-index: 2;
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2em;
+            font-weight: 700;
+            color: var(--cyan);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 1.6em;
+            cursor: pointer;
+            transition: color 0.2s, transform 0.2s;
+            line-height: 1;
+        }
+
+        .modal-close:hover { color: var(--red); transform: rotate(90deg); }
+
+        .modal-body { padding: 25px; }
+
+        /* ─── CONTENT STYLES FOR MODALS ─── */
+        .coming-soon {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .coming-soon .icon { font-size: 3.5em; margin-bottom: 15px; }
+        .coming-soon h3 { font-family: 'Orbitron',sans-serif; color: #aaa; margin-bottom: 10px; font-size: 1.1em; letter-spacing: 2px; }
+        .coming-soon p { font-size: 1em; line-height: 1.6; }
+
+        /* ─── MARKETPLACE GRID ─── */
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 20px;
+        }
+
+        .car-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(0,212,255,0.15);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .car-card:hover {
+            border-color: rgba(0,212,255,0.5);
+            box-shadow: 0 0 25px rgba(0,212,255,0.2);
+            transform: translateY(-4px);
+        }
+
+        .car-card-img {
+            width: 100%;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+        }
+
+        .car-card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .car-card-info {
+            padding: 12px 14px;
+        }
+
+        .car-card-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75em;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .car-card-hp {
+            font-size: 0.85em;
+            color: #888;
+            margin-bottom: 10px;
+        }
+
+        .car-card-price {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1em;
+            font-weight: 700;
+            color: var(--gold);
+        }
+
+        .car-card-price .gem-icon { font-size: 1.1em; }
+
+        .buy-car-btn {
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,153,204,0.1));
+            border: 1px solid rgba(0,212,255,0.3);
+            border-radius: 7px;
+            color: var(--cyan);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.25s;
+        }
+
+        .buy-car-btn:hover {
+            background: rgba(0,212,255,0.2);
+            box-shadow: 0 0 12px rgba(0,212,255,0.3);
+            color: #fff;
+        }
+
+        /* ─── RANKING / LOGROS LIST ─── */
+        .rank-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .rank-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            background: var(--surface);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .rank-pos { font-family: 'Orbitron',sans-serif; font-size: 1.1em; color: var(--cyan); font-weight: 700; width: 30px; }
+        .rank-name { flex: 1; font-weight: 600; font-size: 1em; }
+        .rank-score { color: var(--gold); font-weight: 700; font-size: 0.95em; }
+
+        /* ─── DAILY REWARD ─── */
+        .reward-days { display: grid; grid-template-columns: repeat(7,1fr); gap: 10px; margin-top: 10px; }
+        .reward-day {
+            background: var(--surface);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 10px;
+            padding: 12px 6px;
+            text-align: center;
+            font-size: 0.85em;
+            color: #888;
+            transition: all 0.25s;
+        }
+        .reward-day.claimed { border-color: var(--green); color: var(--green); background: rgba(0,255,136,0.08); }
+        .reward-day.today { border-color: var(--cyan); box-shadow: 0 0 15px rgba(0,212,255,0.3); }
+        .reward-day .day-icon { font-size: 1.5em; display: block; margin-bottom: 5px; }
+        .claim-reward-btn {
+            width: 100%; margin-top: 20px; padding: 14px;
+            background: linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,212,255,0.15));
+            border: 1px solid var(--green); border-radius: 10px; color: var(--green);
+            font-family: 'Orbitron',sans-serif; font-weight: 700; font-size: 0.9em;
+            letter-spacing: 2px; cursor: pointer; text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        .claim-reward-btn:hover { background: rgba(0,255,136,0.25); box-shadow: 0 0 20px rgba(0,255,136,0.3); color: #fff; }
+
+        /* ─── NIVEL ─── */
+        .nivel-bar-wrap { margin: 15px 0; }
+        .nivel-bar-label { display: flex; justify-content: space-between; font-size: 0.9em; color: #888; margin-bottom: 8px; }
+        .nivel-bar-bg { background: rgba(255,255,255,0.07); border-radius: 50px; height: 12px; overflow: hidden; }
+        .nivel-bar-fill {
+            height: 100%; width: 35%;
+            background: linear-gradient(90deg, var(--cyan), var(--green));
+            border-radius: 50px;
+            box-shadow: 0 0 10px rgba(0,212,255,0.5);
+            transition: width 1s ease;
+        }
+        .nivel-perks { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .nivel-perk { display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--surface); border-radius: 10px; font-size: 0.95em; }
+        .nivel-perk .perk-icon { font-size: 1.4em; }
+
+        /* ─── DUELO ─── */
+        .duel-options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .duel-option {
+            padding: 20px; border-radius: 12px; text-align: center; cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.08); background: var(--surface); transition: all 0.3s;
+        }
+        .duel-option:hover { border-color: var(--orange); box-shadow: 0 0 20px rgba(255,140,0,0.2); transform: translateY(-3px); }
+        .duel-option .d-icon { font-size: 2.5em; margin-bottom: 10px; }
+        .duel-option h4 { font-family: 'Orbitron',sans-serif; font-size: 0.8em; color: var(--orange); letter-spacing: 1.5px; }
+        .duel-option p { font-size: 0.85em; color: #888; margin-top: 6px; line-height: 1.5; }
+
+        /* ─── GARAGE ─── */
+        .garage-slot {
+            display: flex; align-items: center; gap: 15px; padding: 15px;
+            background: var(--surface); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); margin-bottom: 12px;
+        }
+        .garage-slot .slot-icon { font-size: 2em; }
+        .garage-slot-info { flex: 1; }
+        .garage-slot-info h4 { font-weight: 700; font-size: 1em; color: #ddd; }
+        .garage-slot-info p { font-size: 0.85em; color: #888; margin-top: 3px; }
+        .slot-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75em; font-weight: 700; }
+        .slot-badge.active { background: rgba(0,255,136,0.15); color: var(--green); border: 1px solid var(--green); }
+        .slot-badge.empty { background: rgba(255,255,255,0.05); color: #666; border: 1px solid rgba(255,255,255,0.1); }
+
+        /* ─── DEPOSITO GEMAS ─── */
+        .gem-tiers { display: flex; flex-direction: column; gap: 12px; }
+        .gem-tier {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 18px; background: var(--surface); border-radius: 12px;
+            border: 1px solid rgba(255,215,0,0.15); cursor: pointer; transition: all 0.3s;
+        }
+        .gem-tier:hover { border-color: var(--gold); box-shadow: 0 0 15px rgba(255,215,0,0.2); }
+        .gem-tier-left { display: flex; align-items: center; gap: 12px; }
+        .gem-tier-icon { font-size: 2em; }
+        .gem-tier-info h4 { font-weight: 700; color: var(--gold); }
+        .gem-tier-info p { font-size: 0.85em; color: #888; margin-top: 3px; }
+        .gem-tier-price { font-family: 'Orbitron',sans-serif; font-size: 0.9em; color: var(--cyan); font-weight: 700; }
+
+        /* ─── TORNEO ─── */
+        .tournament-banner {
+            background: linear-gradient(135deg, rgba(255,140,0,0.1), rgba(255,68,68,0.1));
+            border: 1px solid rgba(255,140,0,0.3); border-radius: 14px;
+            padding: 20px; text-align: center; margin-bottom: 20px;
+        }
+        .tournament-banner h3 { font-family: 'Orbitron',sans-serif; color: var(--orange); margin-bottom: 8px; letter-spacing: 2px; }
+        .tournament-banner .t-prize { font-size: 2em; font-weight: 700; color: var(--gold); }
+
+        /* ─── RETIRO ─── */
+        .withdraw-form { display: flex; flex-direction: column; gap: 15px; }
+        .withdraw-form label { font-size: 0.9em; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        .withdraw-form input {
+            width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(0,212,255,0.25); border-radius: 10px;
+            color: #fff; font-size: 1em; font-family: 'Rajdhani',sans-serif;
+            outline: none; transition: border-color 0.3s;
+        }
+        .withdraw-form input:focus { border-color: var(--cyan); }
+        .withdraw-btn {
+            padding: 14px; background: linear-gradient(135deg,rgba(255,140,0,0.15),rgba(255,68,68,0.15));
+            border: 1px solid var(--orange); border-radius: 10px; color: var(--orange);
+            font-family: 'Orbitron',sans-serif; font-weight: 700; letter-spacing: 2px;
+            font-size: 0.9em; cursor: pointer; text-transform: uppercase; transition: all 0.3s;
+        }
+        .withdraw-btn:hover { background: rgba(255,140,0,0.25); box-shadow: 0 0 20px rgba(255,140,0,0.3); color: #fff; }
+
+        /* ─── RECOMPENSA ORO ─── */
+        .gold-tasks { display: flex; flex-direction: column; gap: 12px; }
+        .gold-task {
+            display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+            background: var(--surface); border-radius: 10px; border: 1px solid rgba(255,215,0,0.1);
+        }
+        .gold-task-icon { font-size: 1.6em; }
+        .gold-task-info { flex: 1; }
+        .gold-task-info h4 { font-weight: 600; font-size: 0.95em; }
+        .gold-task-info p { font-size: 0.82em; color: #888; margin-top: 3px; }
+        .gold-task-reward { color: var(--gold); font-weight: 700; font-size: 0.9em; text-align: right; }
+
+        /* ─── SCROLLBAR ─── */
+        .modal::-webkit-scrollbar { width: 5px; }
+        .modal::-webkit-scrollbar-track { background: transparent; }
+        .modal::-webkit-scrollbar-thumb { background: rgba(0,212,255,0.3); border-radius: 5px; }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 900px) {
+            .layout-grid { flex-direction: column; gap: 35px; }
+            .menu-column { width: 100%; display: grid; grid-template-columns: repeat(2,1fr); gap: 18px; }
+            .car-container { order: -1; max-width: 88%; }
+        }
+
+        @media (max-width: 500px) {
+            .menu-column { grid-template-columns: 1fr; text-align: center; }
+            .top-bar { justify-content: center; flex-direction: column; text-align: center; gap: 15px; }
+            .stats-container { justify-content: center; gap: 12px; }
+            h1 { font-size: 1.6em; }
+            .market-grid { grid-template-columns: repeat(2,1fr); }
+            .duel-options { grid-template-columns: 1fr; }
+            .reward-days { grid-template-columns: repeat(4,1fr); }
+            .bottom-menu { flex-direction: column; gap: 15px; align-items: center; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- Barra Superior -->
+    <!-- ─── TOP BAR ─── -->
     <div class="top-bar">
         <div class="stats-container">
-            <span>Total de puntaje: <strong id="puntaje">0</strong></span>
-            <span>Tipo de nivel: <strong id="nivel">1</strong></span>
-            <span>Cantidad de gemas: <strong id="gemas">0</strong></span>
-            <span>Cartucho de gasolina: <strong id="gasolina">100%</strong></span>
-            <span>Potencia Motor: <strong id="hp">0 HP</strong></span>
+            <span>Puntaje: <strong id="puntaje">0</strong></span>
+            <span>Nivel: <strong id="nivel">1</strong></span>
+            <span>Gemas: <strong id="gemas">0</strong> 💎</span>
+            <span>Gasolina: <strong id="gasolina">100%</strong></span>
+            <span>Motor: <strong id="hp">0 HP</strong></span>
         </div>
         <div id="ton-connect-button"></div>
     </div>
 
-    <!-- Contenido Principal -->
+    <!-- ─── MAIN ─── -->
     <div class="main-content">
         <div class="title-container">
-            <h1>🚗 TURBO GARAGE</h1>
+            <h1><span class="emoji">🚗</span> TURBO GARAGE</h1>
         </div>
 
         <div class="layout-grid">
             <!-- Menú Izquierdo -->
             <div class="menu-column left-menu">
-                <button class="word-btn">Recompensa diaria</button>
-                <button class="word-btn">Logros</button>
-                <button class="word-btn">Nivel</button>
-                <!-- Retirar conectado a "Retiro de gemas" para mantener la función -->
-                <button class="word-btn" onclick="retirar()">Retiro de gemas</button>
-                <button class="word-btn">Duelo urbano</button>
+                <button class="word-btn" onclick="openModal('modal-recompensa')">Recompensa diaria</button>
+                <button class="word-btn" onclick="openModal('modal-logros')">Logros</button>
+                <button class="word-btn" onclick="openModal('modal-nivel')">Nivel</button>
+                <button class="word-btn" onclick="openModal('modal-retiro')">Retiro de gemas</button>
+                <button class="word-btn" onclick="openModal('modal-duelo-urbano')">Duelo urbano</button>
             </div>
 
             <!-- Carro Central -->
             <div class="car-container">
                 <div class="car-base-glow"></div>
-                <!-- Imagen del carro -->
                 <img src="car.jpg" alt="Mi Carro" class="car-image">
-                
-                <!-- Botón Antiguo Adaptado a Premium -->
-                <button class="primary-btn" id="btn-motor" onclick="comprarMotor()">⚙️ Comprar Motor (1 TON)</button>
+                <button class="primary-btn" id="btn-market" onclick="openModal('modal-marketplace')">🏪 Market Place</button>
             </div>
 
             <!-- Menú Derecho -->
             <div class="menu-column right-menu">
-                <button class="word-btn">Recompensa oro</button>
-                <button class="word-btn">Garage</button>
-                <button class="word-btn">Ranking</button>
-                <button class="word-btn">Deposito de Gemas</button>
-                <button class="word-btn">Duelo Callejero</button>
+                <button class="word-btn" onclick="openModal('modal-recompensa-oro')">Recompensa oro</button>
+                <button class="word-btn" onclick="openModal('modal-garage')">Garage</button>
+                <button class="word-btn" onclick="openModal('modal-ranking')">Ranking</button>
+                <button class="word-btn" onclick="openModal('modal-deposito')">Deposito de Gemas</button>
+                <button class="word-btn" onclick="openModal('modal-duelo-callejero')">Duelo Callejero</button>
             </div>
         </div>
 
         <!-- Menú Inferior -->
         <div class="bottom-menu">
-            <button class="word-btn">Torneo</button>
-            <button class="word-btn">Market Place</button>
+            <button class="word-btn" onclick="openModal('modal-torneo')">Torneo</button>
         </div>
     </div>
 
-    <!-- Mensajes de Estado del Sistema -->
     <p id="status-msg"></p>
 
-    <script>
-        // =============================================
-        // 1. INICIALIZAR TONCONNECT UI 
-        // =============================================
-        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-            manifestUrl: 'https://turbo-garage-two.vercel.app/tonconnect-manifest.json',
-            buttonRootId: 'ton-connect-button'
-        });
 
+    <!-- ═══════════════════════════════════════════
+         MODALES
+    ═══════════════════════════════════════════ -->
+
+    <!-- MARKETPLACE -->
+    <div class="modal-overlay" id="modal-marketplace">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">🏪 Market Place</span>
+                <button class="modal-close" onclick="closeModal('modal-marketplace')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="market-grid" id="car-market-grid">
+                    <!-- Se genera con JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECOMPENSA DIARIA -->
+    <div class="modal-overlay" id="modal-recompensa">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">🎁 Recompensa Diaria</span>
+                <button class="modal-close" onclick="closeModal('modal-recompensa')">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:#888; margin-bottom:18px; font-size:0.95em;">Recoge tu recompensa cada día. ¡No pierdas tu racha!</p>
+                <div class="reward-days">
+                    <div class="reward-day claimed"><span class="day-icon">🔧</span>Día 1<br><small>50💎</small></div>
+                    <div class="reward-day claimed"><span class="day-icon">⛽</span>Día 2<br><small>75💎</small></div>
+                    <div class="reward-day claimed"><span class="day-icon">🏆</span>Día 3<br><small>100💎</small></div>
+                    <div class="reward-day today"><span class="day-icon">🚀</span>Día 4<br><small>150💎</small></div>
+                    <div class="reward-day"><span class="day-icon">💎</span>Día 5<br><small>200💎</small></div>
+                    <div class="reward-day"><span class="day-icon">⚡</span>Día 6<br><small>300💎</small></div>
+                    <div class="reward-day"><span class="day-icon">🌟</span>Día 7<br><small>500💎</small></div>
+                </div>
+                <button class="claim-reward-btn" onclick="claimReward()">✅ Reclamar Recompensa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGROS -->
+    <div class="modal-overlay" id="modal-logros">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">🏅 Logros</span>
+                <button class="modal-close" onclick="closeModal('modal-logros')">✕</button>
+            </div>
+            <div class="modal-body">
+                <ul class="rank-list">
+                    <li class="rank-item"><span style="font-size:1.6em">🚗</span><div style="flex:1"><strong>Primer Motor</strong><p style="color:#888;font-size:0.85em;margin-top:3px">Compra tu primer motor</p></div><span style="color:var(--green)">✅ +100💎</span></li>
+                    <li class="rank-item"><span style="font-size:1.6em">🏁</span><div style="flex:1"><strong>Primera Victoria</strong><p style="color:#888;font-size:0.85em;margin-top:3px">Gana tu primer duelo</p></div><span style="color:#888">🔒 +200💎</span></li>
+                    <li class="rank-item"><span style="font-size:1.6em">⚡</span><div style="flex:1"><strong>Velocista</strong><p style="color:#888;font-size:0.85em;margin-top:3px">Alcanza 500 HP totales</p></div><span style="color:#888">🔒 +500💎</span></li>
+                    <li class="rank-item"><span style="font-size:1.6em">👑</span><div style="flex:1"><strong>Rey del Asfalto</strong><p style="color:#888;font-size:0.85em;margin-top:3px">Llega al Top 10 del ranking</p></div><span style="color:#888">🔒 +1000💎</span></li>
+                    <li class="rank-item"><span style="font-size:1.6em">🔥</span><div style="flex:1"><strong>Racha de Fuego</strong><p style="color:#888;font-size:0.85em;margin-top:3px">7 días seguidos de recompensa</p></div><span style="color:#888">🔒 +750💎</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- NIVEL -->
+    <div class="modal-overlay" id="modal-nivel">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">⬆️ Nivel</span>
+                <button class="modal-close" onclick="closeModal('modal-nivel')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div style="text-align:center; margin-bottom:20px;">
+                    <div style="font-family:'Orbitron',sans-serif; font-size:3em; color:var(--cyan);" id="modal-nivel-num">1</div>
+                    <div style="color:#888; font-size:0.9em; margin-top:5px;">Nivel actual</div>
+                </div>
+                <div class="nivel-bar-wrap">
+                    <div class="nivel-bar-label"><span>XP Actual: 350</span><span>Siguiente: 1000 XP</span></div>
+                    <div class="nivel-bar-bg"><div class="nivel-bar-fill" style="width:35%"></div></div>
+                </div>
+                <div class="nivel-perks">
+                    <div class="nivel-perk"><span class="perk-icon">✅</span><span>Nivel 1 — Acceso a duelos básicos</span></div>
+                    <div class="nivel-perk"><span class="perk-icon">✅</span><span>Nivel 2 — Desbloquea Duelo Callejero</span></div>
+                    <div class="nivel-perk" style="opacity:0.4"><span class="perk-icon">🔒</span><span>Nivel 3 — Torneos disponibles</span></div>
+                    <div class="nivel-perk" style="opacity:0.4"><span class="perk-icon">🔒</span><span>Nivel 5 — Mercado de piezas exclusivo</span></div>
+                    <div class="nivel-perk" style="opacity:0.4"><span class="perk-icon">🔒</span><span>Nivel 10 — Modo competitivo PRO</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RETIRO DE GEMAS -->
+    <div class="modal-overlay" id="modal-retiro">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">💸 Retiro de Gemas</span>
+                <button class="modal-close" onclick="closeModal('modal-retiro')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="withdraw-form">
+                    <div>
+                        <label>Dirección TON Wallet</label>
+                        <input type="text" placeholder="UQ..." style="margin-top:8px">
+                    </div>
+                    <div>
+                        <label>Cantidad de gemas 💎</label>
+                        <input type="number" placeholder="Mínimo 500 gemas" style="margin-top:8px">
+                    </div>
+                    <div style="padding:12px 16px; background:rgba(255,140,0,0.08); border:1px solid rgba(255,140,0,0.2); border-radius:10px; font-size:0.88em; color:#ffaa00; line-height:1.6;">
+                        ⚠️ Mínimo de retiro: 500 💎 · Tasa de conversión: 1000💎 = 0.1 TON · Tiempo de proceso: 24h
+                    </div>
+                    <button class="withdraw-btn" onclick="retirar()">🚀 Solicitar Retiro</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DUELO URBANO -->
+    <div class="modal-overlay" id="modal-duelo-urbano">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">🏙️ Duelo Urbano</span>
+                <button class="modal-close" onclick="closeModal('modal-duelo-urbano')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="duel-options">
+                    <div class="duel-option">
+                        <div class="d-icon">🔍</div>
+                        <h4>Buscar Rival</h4>
+                        <p>Enfrenta a un jugador aleatorio de tu mismo nivel en las calles de la ciudad</p>
+                    </div>
+                    <div class="duel-option">
+                        <div class="d-icon">👥</div>
+                        <h4>Retar Amigo</h4>
+                        <p>Envía un reto directamente a un amigo usando su código de jugador</p>
+                    </div>
+                    <div class="duel-option">
+                        <div class="d-icon">🏆</div>
+                        <h4>Liga Urbana</h4>
+                        <p>Escala posiciones en la liga semanal con premios en gemas</p>
+                    </div>
+                    <div class="duel-option">
+                        <div class="d-icon">🎯</div>
+                        <h4>Práctica</h4>
+                        <p>Entrena sin apostar gemas contra bots de dificultad variable</p>
+                    </div>
+                </div>
+                <div style="margin-top:18px; padding:12px; background:var(--surface); border-radius:10px; text-align:center; color:#888; font-size:0.88em;">
+                    ⏳ Próximamente — Los duelos estarán disponibles en la siguiente actualización
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RECOMPENSA ORO -->
+    <div class="modal-overlay" id="modal-recompensa-oro">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">🥇 Recompensa Oro</span>
+                <button class="modal-close" onclick="closeModal('modal-recompensa-oro')">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:#888; margin-bottom:18px; font-size:0.92em;">Completa tareas especiales para ganar recompensas premium en oro.</p>
+                <div class="gold-tasks">
+                    <div class="gold-task"><span class="gold-task-icon">🚗</span><div class="gold-task-info"><h4>Compra 3 carros</h4><p>Adquiere 3 vehículos en el marketplace</p></div><div class="gold-task-reward">0/3<br><small>+1000💎</small></div></div>
+                    <div class="gold-task"><span class="gold-task-icon">⚡</span><div class="gold-task-info"><h4>Alcanza 1000 HP</h4><p>Mejora tu motor hasta 1000 caballos de fuerza</p></div><div class="gold-task-reward">0%<br><small>+500💎</small></div></div>
+                    <div class="gold-task"><span class="gold-task-icon">🏁</span><div class="gold-task-info"><h4>Gana 10 duelos</h4><p>Victorias confirmadas en duelos PvP</p></div><div class="gold-task-reward">0/10<br><small>+2000💎</small></div></div>
+                    <div class="gold-task"><span class="gold-task-icon">📅</span><div class="gold-task-info"><h4>Racha de 30 días</h4><p>Inicia sesión 30 días consecutivos</p></div><div class="gold-task-reward">3/30<br><small>+5000💎</small></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GARAGE -->
+    <div class="modal-overlay" id="modal-garage">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">🏠 Mi Garage</span>
+                <button class="modal-close" onclick="closeModal('modal-garage')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="garage-slot">
+                    <span class="slot-icon">🚗</span>
+                    <div class="garage-slot-info">
+                        <h4>Carro Principal</h4>
+                        <p>0 HP · Gasolina: 100%</p>
+                    </div>
+                    <span class="slot-badge active">ACTIVO</span>
+                </div>
+                <div class="garage-slot">
+                    <span class="slot-icon">➕</span>
+                    <div class="garage-slot-info">
+                        <h4>Slot 2</h4>
+                        <p>Vacío — Compra un carro en el marketplace</p>
+                    </div>
+                    <span class="slot-badge empty">VACÍO</span>
+                </div>
+                <div class="garage-slot">
+                    <span class="slot-icon">➕</span>
+                    <div class="garage-slot-info">
+                        <h4>Slot 3</h4>
+                        <p>Vacío — Vacío — Compra un carro en el marketplace</p>
+                    </div>
+                    <span class="slot-badge empty">VACÍO</span>
+                </div>
+                <button class="primary-btn" style="margin-top:15px" onclick="closeModal('modal-garage'); openModal('modal-marketplace')">🏪 Ir al Marketplace</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- RANKING -->
+    <div class="modal-overlay" id="modal-ranking">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">🏆 Ranking Global</span>
+                <button class="modal-close" onclick="closeModal('modal-ranking')">✕</button>
+            </div>
+            <div class="modal-body">
+                <ul class="rank-list">
+                    <li class="rank-item"><span class="rank-pos">🥇</span><span class="rank-name">TurboKing_99</span><span class="rank-score">48,320 pts</span></li>
+                    <li class="rank-item"><span class="rank-pos">🥈</span><span class="rank-name">Velocidad_X</span><span class="rank-score">41,100 pts</span></li>
+                    <li class="rank-item"><span class="rank-pos">🥉</span><span class="rank-name">El_Cheetah</span><span class="rank-score">39,750 pts</span></li>
+                    <li class="rank-item"><span class="rank-pos" style="color:#aaa">4</span><span class="rank-name">NitroBlast</span><span class="rank-score">35,200 pts</span></li>
+                    <li class="rank-item"><span class="rank-pos" style="color:#aaa">5</span><span class="rank-name">Asfalto_Pro</span><span class="rank-score">31,800 pts</span></li>
+                    <li class="rank-item" style="border:1px solid rgba(0,212,255,0.3); background:rgba(0,212,255,0.05)"><span class="rank-pos" style="color:#aaa">—</span><span class="rank-name" style="color:var(--cyan)">Tú</span><span class="rank-score">0 pts</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEPOSITO DE GEMAS -->
+    <div class="modal-overlay" id="modal-deposito">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">💎 Depósito de Gemas</span>
+                <button class="modal-close" onclick="closeModal('modal-deposito')">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="color:#888; margin-bottom:18px; font-size:0.92em;">Compra gemas con TON para usarlas en el marketplace y mejoras.</p>
+                <div class="gem-tiers">
+                    <div class="gem-tier" onclick="comprarGemas(100, 0.1)">
+                        <div class="gem-tier-left"><span class="gem-tier-icon">💎</span><div class="gem-tier-info"><h4>100 Gemas</h4><p>Pack básico para empezar</p></div></div>
+                        <span class="gem-tier-price">0.1 TON</span>
+                    </div>
+                    <div class="gem-tier" onclick="comprarGemas(500, 0.45)">
+                        <div class="gem-tier-left"><span class="gem-tier-icon">💎💎</span><div class="gem-tier-info"><h4>500 Gemas</h4><p>Ahorra 10% · Popular</p></div></div>
+                        <span class="gem-tier-price">0.45 TON</span>
+                    </div>
+                    <div class="gem-tier" onclick="comprarGemas(1200, 1.0)">
+                        <div class="gem-tier-left"><span class="gem-tier-icon">💎💎💎</span><div class="gem-tier-info"><h4>1,200 Gemas</h4><p>Ahorra 16% · Más valor</p></div></div>
+                        <span class="gem-tier-price">1 TON</span>
+                    </div>
+                    <div class="gem-tier" onclick="comprarGemas(3000, 2.0)">
+                        <div class="gem-tier-left"><span class="gem-tier-icon">🏆</span><div class="gem-tier-info"><h4>3,000 Gemas</h4><p>Ahorra 25% · Pack PRO</p></div></div>
+                        <span class="gem-tier-price">2 TON</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DUELO CALLEJERO -->
+    <div class="modal-overlay" id="modal-duelo-callejero">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">🛣️ Duelo Callejero</span>
+                <button class="modal-close" onclick="closeModal('modal-duelo-callejero')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="duel-options">
+                    <div class="duel-option">
+                        <div class="d-icon">⚡</div>
+                        <h4>Carrera Rápida</h4>
+                        <p>Apuesta 50💎 en una carrera corta de alta velocidad</p>
+                    </div>
+                    <div class="duel-option">
+                        <div class="d-icon">💥</div>
+                        <h4>Todo o Nada</h4>
+                        <p>Apuesta todas tus gemas en una sola carrera de alto riesgo</p>
+                    </div>
+                    <div class="duel-option">
+                        <div class="d-icon">🌙</div>
+                        <h4>Carrera Nocturna</h4>
+                        <p>Solo disponible de 8PM–4AM. Premios dobles garantizados</p>
+                    </div>
+                    <div class="duel-option">
+                        <div class="d-icon">🗺️</div>
+                        <h4>Circuito Abierto</h4>
+                        <p>3 rondas eliminatorias, el mejor de 3 gana el premio acumulado</p>
+                    </div>
+                </div>
+                <div style="margin-top:18px; padding:12px; background:var(--surface); border-radius:10px; text-align:center; color:#888; font-size:0.88em;">
+                    ⏳ Próximamente — Duelos activados en la siguiente actualización
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TORNEO -->
+    <div class="modal-overlay" id="modal-torneo">
+        <div class="modal">
+            <div class="modal-header">
+                <span class="modal-title">🏆 Torneo</span>
+                <button class="modal-close" onclick="closeModal('modal-torneo')">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="tournament-banner">
+                    <h3>GRAN PREMIO SEMANAL</h3>
+                    <div class="t-prize">🏆 50,000 💎</div>
+                    <p style="color:#888; margin-top:8px; font-size:0.9em;">Termina en: 3d 14h 22m</p>
+                </div>
+                <ul class="rank-list">
+                    <li class="rank-item"><span class="rank-pos">🥇</span><span class="rank-name">1er Lugar</span><span class="rank-score">25,000💎 + Carro NFT</span></li>
+                    <li class="rank-item"><span class="rank-pos">🥈</span><span class="rank-name">2do Lugar</span><span class="rank-score">15,000💎</span></li>
+                    <li class="rank-item"><span class="rank-pos">🥉</span><span class="rank-name">3er Lugar</span><span class="rank-score">10,000💎</span></li>
+                    <li class="rank-item"><span class="rank-pos" style="color:#aaa">4–10</span><span class="rank-name">Top 10</span><span class="rank-score">1,000💎</span></li>
+                </ul>
+                <button class="claim-reward-btn" style="margin-top:20px; color:var(--orange); border-color:var(--orange); background:rgba(255,140,0,0.1)">
+                    ⏳ Próximamente — Inscripción abierta pronto
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // ─── ESTADO ───
         let hp = 0;
-        let premios = 0;
+        let gemas = 0;
+        let nivel = 1;
         const statusMsg = document.getElementById('status-msg');
 
         function mostrarMensaje(texto, color = '#888') {
             statusMsg.textContent = texto;
             statusMsg.style.color = color;
             statusMsg.style.textShadow = `0 0 10px ${color}55`;
+            clearTimeout(mostrarMensaje._t);
+            mostrarMensaje._t = setTimeout(() => { statusMsg.textContent = ''; }, 5000);
         }
 
-        async function comprarMotor() {
+        // ─── MODALES ───
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Cierra al hacer click fuera
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) closeModal(this.id);
+            });
+        });
+
+        // ─── MARKETPLACE DATA ───
+        const carros = [
+            { nombre: 'Honda Civic', hp: 150, gemas: 800,  emoji: '🔵', color: '#0088ff' },
+            { nombre: 'Toyota Supra', hp: 320, gemas: 2500, emoji: '🟠', color: '#ff6600' },
+            { nombre: 'Nissan GTR', hp: 480, gemas: 4200,  emoji: '⚪', color: '#cccccc' },
+            { nombre: 'Dodge Challenger', hp: 550, gemas: 5500, emoji: '🔴', color: '#ff2222' },
+            { nombre: 'Lamborghini', hp: 720, gemas: 9000, emoji: '🟡', color: '#ffcc00' },
+            { nombre: 'Ferrari F40', hp: 680, gemas: 8500, emoji: '🔴', color: '#cc0000' },
+            { nombre: 'McLaren P1', hp: 900, gemas: 14000, emoji: '🟠', color: '#ff4400' },
+            { nombre: 'Bugatti Chiron', hp: 1200, gemas: 20000, emoji: '🔵', color: '#0055cc' },
+        ];
+
+        function buildMarket() {
+            const grid = document.getElementById('car-market-grid');
+            grid.innerHTML = carros.map((c, i) => `
+                <div class="car-card">
+                    <div class="car-card-img" style="background:linear-gradient(135deg,#111,#1a1a1a)">
+                        <span style="filter:drop-shadow(0 0 15px ${c.color})">${c.emoji}🚗</span>
+                    </div>
+                    <div class="car-card-info">
+                        <div class="car-card-name">${c.nombre}</div>
+                        <div class="car-card-hp">⚡ ${c.hp} HP</div>
+                        <div class="car-card-price"><span class="gem-icon">💎</span>${c.gemas.toLocaleString()} gemas</div>
+                        <button class="buy-car-btn" onclick="comprarCarro(${i})">Comprar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        buildMarket();
+
+        function comprarCarro(idx) {
+            const c = carros[idx];
             if (!tonConnectUI.connected) {
-                mostrarMensaje('⚠️ Primero conecta tu wallet', '#ffaa00');
+                mostrarMensaje('⚠️ Conecta tu wallet primero', '#ffaa00');
+                closeModal('modal-marketplace');
+                tonConnectUI.openModal();
+                return;
+            }
+            if (gemas < c.gemas) {
+                mostrarMensaje(`❌ Necesitas ${c.gemas.toLocaleString()} 💎 — Tienes ${gemas}`, '#ff4444');
+                return;
+            }
+            gemas -= c.gemas;
+            hp += c.hp;
+            document.getElementById('gemas').textContent = gemas;
+            document.getElementById('hp').textContent = hp + ' HP';
+            mostrarMensaje(`✅ ¡${c.nombre} comprado! +${c.hp} HP`, '#00ff88');
+            closeModal('modal-marketplace');
+        }
+
+        // ─── COMPRAR GEMAS ───
+        async function comprarGemas(cantidad, tonAmount) {
+            if (!tonConnectUI.connected) {
+                mostrarMensaje('⚠️ Conecta tu wallet primero', '#ffaa00');
+                closeModal('modal-deposito');
                 tonConnectUI.openModal();
                 return;
             }
 
-            const btnMotor = document.getElementById('btn-motor');
-            btnMotor.disabled = true;
-            mostrarMensaje('⏳ Procesando transacción...', '#00d4ff');
+            mostrarMensaje('⏳ Procesando pago...', '#00d4ff');
 
-            const transaction = {
+            const tx = {
                 validUntil: Math.floor(Date.now() / 1000) + 300,
                 messages: [{
                     address: "UQCObIMiCLIWIdT9FVPZWz5jAWocxqhu6bYzwtJzEkkHAsaY",
-                    amount: "1000000000"
+                    amount: String(Math.round(tonAmount * 1e9))
                 }]
             };
 
             try {
-                await tonConnectUI.sendTransaction(transaction);
-                hp += 100;
-                document.getElementById('hp').textContent = hp + ' HP';
-                mostrarMensaje('✅ ¡Motor comprado! +100 HP', '#00ff88');
+                await tonConnectUI.sendTransaction(tx);
+                gemas += cantidad;
+                document.getElementById('gemas').textContent = gemas;
+                mostrarMensaje(`✅ +${cantidad} 💎 añadidas a tu cuenta`, '#00ff88');
+                closeModal('modal-deposito');
             } catch (e) {
-                console.error('Error en transacción:', e);
+                console.error(e);
                 mostrarMensaje('❌ Transacción cancelada', '#ff4444');
-            } finally {
-                btnMotor.disabled = false;
             }
         }
 
+        // ─── RECOMPENSA DIARIA ───
+        function claimReward() {
+            gemas += 150;
+            document.getElementById('gemas').textContent = gemas;
+            mostrarMensaje('🎁 ¡+150 💎 reclamadas!', '#00ff88');
+            closeModal('modal-recompensa');
+        }
+
+        // ─── RETIRO ───
         function retirar() {
             if (!tonConnectUI.connected) {
-                mostrarMensaje('⚠️ Primero conecta tu wallet', '#ffaa00');
+                mostrarMensaje('⚠️ Conecta tu wallet primero', '#ffaa00');
+                closeModal('modal-retiro');
                 tonConnectUI.openModal();
                 return;
             }
-            mostrarMensaje('🔜 Próximamente: Retiro de gemas', '#ffaa00');
+            mostrarMensaje('🔜 Retiro en proceso — 24h de espera', '#ffaa00');
+            closeModal('modal-retiro');
         }
 
-        tonConnectUI.onStatusChange((wallet) => {
-            if (wallet) {
-                mostrarMensaje('✅ Wallet conectada', '#00ff88');
-            } else {
-                mostrarMensaje('Wallet desconectada', '#888');
-            }
+        // ─── TONCONNECT ───
+        const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+            manifestUrl: 'https://turbo-garage-two.vercel.app/tonconnect-manifest.json',
+            buttonRootId: 'ton-connect-button'
         });
 
-        // =============================================
-        // SDK DE TELEGRAM
-        // =============================================
+        tonConnectUI.onStatusChange((wallet) => {
+            if (wallet) mostrarMensaje('✅ Wallet conectada', '#00ff88');
+            else mostrarMensaje('Wallet desconectada', '#888');
+        });
+
+        // ─── TELEGRAM SDK ───
         if (window.Telegram && window.Telegram.WebApp) {
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
-            // Match the top bar background color natively in TG
-            Telegram.WebApp.setHeaderColor('#151515');
+            Telegram.WebApp.setHeaderColor('#080808');
             Telegram.WebApp.setBackgroundColor('#050505');
         }
     </script>
