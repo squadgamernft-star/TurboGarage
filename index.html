@@ -208,6 +208,34 @@
         .info-box { padding: 11px 14px; background: rgba(255,140,0,0.07); border: 1px solid rgba(255,140,0,0.2); border-radius: 10px; font-size: 0.83em; color: #ffaa00; line-height: 1.6; }
         .coming-soon-box { padding: 12px; background: var(--surface); border-radius: 10px; text-align: center; color: #666; font-size: 0.84em; margin-top: 12px; }
 
+        /* CAR DETAIL MODAL */
+        .car-detail-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(16px); z-index: 1100; justify-content: center; align-items: center; padding: 20px; }
+        .car-detail-overlay.active { display: flex; }
+        .car-detail-modal { background: linear-gradient(145deg, #0e1a1a 0%, #080808 100%); border: 1px solid rgba(0,212,255,0.35); border-radius: 22px; max-width: 520px; width: 100%; max-height: 92vh; overflow-y: auto; box-shadow: 0 0 80px rgba(0,212,255,0.2); animation: modalIn 0.35s cubic-bezier(0.175,0.885,0.32,1.275); }
+        .car-detail-img-wrap { position: relative; width: 100%; }
+        .car-detail-img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 20px 20px 0 0; display: block; }
+        .car-detail-img-glow { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; background: linear-gradient(to top, #0e1a1a, transparent); }
+        .car-detail-close { position: absolute; top: 12px; right: 12px; background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.15); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; color: #aaa; font-size: 1.1em; cursor: pointer; transition: all 0.2s; z-index: 2; }
+        .car-detail-close:hover { color: var(--red); border-color: var(--red); transform: rotate(90deg); }
+        .car-detail-body { padding: 18px 22px 24px; }
+        .car-detail-name { font-family: 'Orbitron', sans-serif; font-size: 1.3em; font-weight: 900; color: #fff; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+        .car-detail-badge { display: inline-block; padding: 3px 10px; background: rgba(0,212,255,0.1); border: 1px solid rgba(0,212,255,0.3); border-radius: 20px; font-size: 0.72em; color: var(--cyan); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+        .car-detail-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+        .car-stat-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 12px 14px; }
+        .car-stat-card .stat-icon { font-size: 1.4em; margin-bottom: 4px; }
+        .car-stat-card .stat-label { font-size: 0.72em; color: #888; text-transform: uppercase; letter-spacing: 0.8px; }
+        .car-stat-card .stat-value { font-family: 'Orbitron', sans-serif; font-size: 1.05em; font-weight: 700; margin-top: 2px; }
+        .car-stat-card.stat-hp .stat-value { color: var(--cyan); }
+        .car-stat-card.stat-dur .stat-value { color: var(--green); }
+        .car-stat-card.stat-fuel .stat-value { color: var(--orange); }
+        .car-stat-card.stat-earn .stat-value { color: var(--gold); }
+        .car-detail-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 14px 0; }
+
+        /* MARKETPLACE zoom on purchase */
+        .car-card-img-wrap { position: relative; overflow: hidden; cursor: zoom-in; }
+        .car-card-img-wrap::after { content: '🔍'; position: absolute; top: 6px; right: 6px; font-size: 0.9em; opacity: 0; transition: opacity 0.2s; background: rgba(0,0,0,0.6); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+        .car-card:hover .car-card-img-wrap::after { opacity: 1; }
+
         /* SCROLLBAR */
         .modal::-webkit-scrollbar { width: 4px; }
         .modal::-webkit-scrollbar-track { background: transparent; }
@@ -256,7 +284,9 @@
             <img class="car-image" id="main-car-img"
                  src="https://raw.githubusercontent.com/squadgamernft-star/TurboGarage/main/img/carro_320.jpg.png"
                  alt="Tu carro activo"
-                 onerror="this.src='data:image/svg+xml,' + encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 460 280\'><rect fill=\'%230a0a0a\' width=\'460\' height=\'280\'/><text x=\'230\' y=\'155\' text-anchor=\'middle\' font-size=\'80\' fill=\'%23333\'>🚗</text></svg>')">
+                 style="cursor:pointer"
+                 onclick="if(carrosComprados.length>0){openCarDetail(carrosComprados[0],true)}else{mostrarMensaje('⚠️ Compra un vehículo en el Marketplace','#ffaa00')}"
+                 onerror="this.src='data:image/svg+xml,' + encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 460 280\'><rect fill=\'%230a0a0a\' width=\'460\' height=\'280\'/><text x=\'230\' y=\'155\' text-anchor=\'middle\' font-size=\'80\' fill=\'%23333\'>🚗</text></svg>')">>
 
             <!-- Fuel Cartridges -->
             <div>
@@ -577,6 +607,47 @@
     </div>
 </div>
 
+<!-- CAR DETAIL MODAL (zoom / NFT detail) -->
+<div class="car-detail-overlay" id="modal-car-detail">
+    <div class="car-detail-modal">
+        <div class="car-detail-img-wrap">
+            <img class="car-detail-img" id="car-detail-img" src="" alt="">
+            <div class="car-detail-img-glow"></div>
+            <button class="car-detail-close" onclick="closeCarDetail()">✕</button>
+        </div>
+        <div class="car-detail-body">
+            <div class="car-detail-name" id="car-detail-name"></div>
+            <div class="car-detail-badge">NFT · TON BLOCKCHAIN</div>
+            <div class="car-detail-stats">
+                <div class="car-stat-card stat-hp">
+                    <div class="stat-icon">⚡</div>
+                    <div class="stat-label">Potencia</div>
+                    <div class="stat-value" id="car-detail-hp">— HP</div>
+                </div>
+                <div class="car-stat-card stat-dur">
+                    <div class="stat-icon">🔩</div>
+                    <div class="stat-label">Durabilidad</div>
+                    <div class="stat-value" id="car-detail-dur">100%</div>
+                </div>
+                <div class="car-stat-card stat-fuel">
+                    <div class="stat-icon">⛽</div>
+                    <div class="stat-label">Cartuchos</div>
+                    <div class="stat-value" id="car-detail-fuel">4 / 4</div>
+                </div>
+                <div class="car-stat-card stat-earn">
+                    <div class="stat-icon">💎</div>
+                    <div class="stat-label">Gemas / día</div>
+                    <div class="stat-value" id="car-detail-earn">—</div>
+                </div>
+            </div>
+            <div class="car-detail-divider"></div>
+            <div id="car-detail-dur-bar" style="margin-bottom:12px"></div>
+            <div id="car-detail-fuel-dots" style="display:flex;gap:6px;justify-content:center;margin-bottom:14px"></div>
+            <div id="car-detail-action-btn"></div>
+        </div>
+    </div>
+</div>
+
 <!-- ══════════ JAVASCRIPT ══════════ -->
 <script>
 
@@ -766,16 +837,84 @@ function switchTab(e, group, panel) {
     if (panelEl) panelEl.classList.add('active');
 }
 
+// ── CAR DETAIL MODAL ─────────────────────────────────────────
+// gemsPerDay: roughly hp/20 capped for balance
+function gemasXDia(c) {
+    return parseFloat((c.hp / 20).toFixed(1));
+}
+
+function openCarDetail(idx, fromGarage) {
+    const c       = CARROS[idx];
+    const dur     = getDurabilidad(idx);
+    const durCls  = colorDurabilidad(dur);
+    const fuelLlenos = fuelCartuchos.filter(Boolean).length;
+    const gpd     = gemasXDia(c);
+
+    $id('car-detail-img').src       = IMG_BASE + c.img;
+    $id('car-detail-img').onerror   = function(){ this.src = IMG_FALLBACK; };
+    $id('car-detail-name').textContent = c.nombre;
+    $id('car-detail-hp').textContent   = c.hp + ' HP';
+    $id('car-detail-dur').textContent  = dur + '%';
+    $id('car-detail-dur').style.color  = dur >= 60 ? 'var(--green)' : dur >= 30 ? 'var(--gold)' : 'var(--red)';
+    $id('car-detail-fuel').textContent = fuelLlenos + ' / 4';
+    $id('car-detail-earn').textContent = gpd + ' 💎';
+
+    // Durability bar
+    $id('car-detail-dur-bar').innerHTML = `
+        <div style="display:flex;justify-content:space-between;font-size:0.78em;color:#888;margin-bottom:5px">
+            <span>🔩 Durabilidad del chasis</span>
+            <span style="color:${dur>=60?'var(--green)':dur>=30?'var(--gold)':'var(--red)'}">${dur}%</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:50px;height:8px;overflow:hidden">
+            <div class="dur-bar-fill ${durCls}" style="width:${dur}%;height:100%;border-radius:50px;transition:width 0.5s"></div>
+        </div>
+        <div style="font-size:0.72em;color:#555;margin-top:4px;text-align:center">📉 −0.8% por cartucho usado · Recupera con mantenimiento</div>`;
+
+    // Fuel dots
+    let dots = '';
+    for (let i = 0; i < 4; i++) {
+        const lleno = fuelCartuchos[i];
+        dots += `<div style="width:36px;height:16px;border-radius:5px;border:1px solid ${lleno?'var(--cyan)':'rgba(255,255,255,0.1)'};background:${lleno?'linear-gradient(135deg,rgba(0,212,255,0.5),rgba(0,255,136,0.3))':'rgba(255,255,255,0.03)'};box-shadow:${lleno?'0 0 6px rgba(0,212,255,0.4)':'none'}"></div>`;
+    }
+    $id('car-detail-fuel-dots').innerHTML = dots;
+
+    // Action button
+    if (fromGarage) {
+        $id('car-detail-action-btn').innerHTML = `
+            <button class="primary-btn" style="font-size:0.82em" onclick="closeCarDetail();openModal('modal-mantenimiento')">🔧 Ir a Mantenimiento</button>`;
+    } else {
+        const comprado = carrosComprados.includes(idx);
+        $id('car-detail-action-btn').innerHTML = comprado
+            ? `<button class="primary-btn" style="font-size:0.82em;opacity:0.5;cursor:default">✅ Ya está en tu Garage</button>`
+            : `<button class="primary-btn" style="font-size:0.82em" onclick="closeCarDetail();comprarCarro(${idx})">💎 Comprar por ${c.precio.toLocaleString()} gemas</button>`;
+    }
+
+    $id('modal-car-detail').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeCarDetail() {
+    $id('modal-car-detail').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+$id('modal-car-detail').addEventListener('click', e => {
+    if (e.target === $id('modal-car-detail')) closeCarDetail();
+});
+
 // ── MARKETPLACE ──────────────────────────────────────────────
 function buildMarket() {
     $id('car-market-grid').innerHTML = CARROS.map((c, i) => {
         const comprado = carrosComprados.includes(i);
+        const gpd = gemasXDia(c);
         return `<div class="car-card" id="card-${i}">
-            <img class="car-card-img" src="${IMG_BASE}${c.img}" alt="${c.nombre}"
-                 onerror="this.src='${IMG_FALLBACK}';">
+            <div class="car-card-img-wrap" onclick="openCarDetail(${i}, false)">
+                <img class="car-card-img" src="${IMG_BASE}${c.img}" alt="${c.nombre}"
+                     onerror="this.src='${IMG_FALLBACK}';">
+            </div>
             <div class="car-card-info">
                 <div class="car-card-name">${c.nombre}</div>
-                <div style="font-size:0.78em;color:#888;margin-bottom:4px">⚡ ${c.hp} HP</div>
+                <div style="font-size:0.76em;color:#888;margin-bottom:2px">⚡ ${c.hp} HP &nbsp;·&nbsp; <span style="color:var(--gold)">💎 ${gpd}/día</span></div>
                 <div class="car-card-price">💎 ${c.precio.toLocaleString()}</div>
                 <button class="buy-car-btn" id="buy-btn-${i}" onclick="comprarCarro(${i})" ${comprado?'disabled':''}>
                     ${comprado ? '✅ Comprado' : 'Comprar'}
@@ -793,11 +932,10 @@ function comprarCarro(idx) {
     hp    += c.hp;
     puntaje += Math.round(c.precio / 10);
     carrosComprados.push(idx);
-    durabilidades[idx] = 100; // nuevo carro, durabilidad completa
+    durabilidades[idx] = 100;
     saveDurabilidades();
     actualizarUI();
 
-    // Actualizar imagen principal si es el primer carro
     if (carrosComprados.length === 1) {
         $id('main-car-img').src = IMG_BASE + c.img;
     }
@@ -805,6 +943,9 @@ function comprarCarro(idx) {
     const btn = $id(`buy-btn-${idx}`);
     if (btn) { btn.textContent = '✅ Comprado'; btn.disabled = true; }
     buildLogros();
+
+    // Show purchase confirmation with zoomed image
+    setTimeout(() => openCarDetail(idx, true), 400);
     mostrarMensaje(`✅ ¡${c.nombre} comprado! +${c.hp} HP`,'#00ff88');
 }
 
@@ -929,28 +1070,29 @@ function buildLogros() {
 
 // ── GARAGE ───────────────────────────────────────────────────
 function buildGarage() {
-    // Vehículos — 20 slots con durabilidad
     let html = '';
     for (let i = 0; i < 20; i++) {
         const idx = carrosComprados[i];
         if (idx !== undefined) {
             const c   = CARROS[idx];
             const dur = getDurabilidad(idx);
-            const durClass = colorDurabilidad(dur);
-            let durLabel = dur >= 60 ? '🟢 Bueno' : dur >= 30 ? '🟡 Desgaste' : '🔴 Crítico';
-            html += `<div class="garage-slot-card occupied" title="${c.nombre} — Durabilidad: ${dur}%">
-                <div class="gs-icon">🚗</div>
+            const durCls = colorDurabilidad(dur);
+            const durLabel = dur >= 60 ? '🟢 Bueno' : dur >= 30 ? '🟡 Desgaste' : '🔴 Crítico';
+            html += `<div class="garage-slot-card occupied" onclick="openCarDetail(${idx}, true)" title="Ver detalle — ${c.nombre}">
+                <img src="${IMG_BASE}${c.img}" alt="${c.nombre}"
+                     onerror="this.src='${IMG_FALLBACK}'"
+                     style="width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:7px;display:block;margin-bottom:6px;border:1px solid rgba(0,212,255,0.25)">
                 <div class="gs-name">${c.nombre}</div>
-                <div style="font-size:0.7em;color:#888;margin-top:2px">${c.hp} HP</div>
-                <div class="dur-bar-wrap" style="padding:0 4px">
+                <div style="font-size:0.7em;color:#888;margin-top:2px">⚡ ${c.hp} HP</div>
+                <div class="dur-bar-wrap" style="padding:0 2px;margin-top:5px">
                     <div class="dur-bar-label">
-                        <span style="font-size:0.65em">🔩 Dur.</span>
-                        <span style="font-size:0.65em;color:${dur >= 60 ? 'var(--green)' : dur >= 30 ? 'var(--gold)' : 'var(--red)'}">${dur}%</span>
+                        <span style="font-size:0.62em">🔩</span>
+                        <span style="font-size:0.62em;color:${dur>=60?'var(--green)':dur>=30?'var(--gold)':'var(--red)'}">${dur}%</span>
                     </div>
                     <div class="dur-bar-bg">
-                        <div class="dur-bar-fill ${durClass}" style="width:${dur}%"></div>
+                        <div class="dur-bar-fill ${durCls}" style="width:${dur}%"></div>
                     </div>
-                    <div style="font-size:0.6em;text-align:center;margin-top:2px;color:#666">${durLabel}</div>
+                    <div style="font-size:0.58em;text-align:center;margin-top:2px;color:#555">${durLabel}</div>
                 </div>
             </div>`;
         } else {
@@ -963,7 +1105,6 @@ function buildGarage() {
     }
     $id('garage-grid-vehicles').innerHTML = html;
 
-    // Equipamiento
     const equipos = { cascos:'🪖', guantes:'🥊', botas:'👢', trajes:'🦺' };
     Object.entries(equipos).forEach(([tipo, icon]) => {
         let h = '';
