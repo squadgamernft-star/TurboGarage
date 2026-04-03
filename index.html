@@ -33,7 +33,7 @@
         .layout-grid { display: flex; width: 100%; justify-content: center; align-items: center; gap: 50px; margin-bottom: 35px; }
         .car-container { position: relative; width: 100%; max-width: 460px; display: flex; flex-direction: column; align-items: center; gap: 18px; }
         .car-base-glow { position: absolute; bottom: 65px; width: 75%; height: 18px; background: var(--cyan); filter: blur(35px); opacity: 0.45; z-index: 1; }
-        .car-image { width: 100%; border-radius: 14px; border: 2px solid rgba(0,212,255,0.7); box-shadow: 0 0 35px rgba(0,212,255,0.4); background: #000; display: block; transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); z-index: 2; }
+        .car-image { width: 100%; border-radius: 14px; border: 2px solid rgba(0,212,255,0.7); box-shadow: 0 0 35px rgba(0,212,255,0.4); background: #000; display: block; transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275); z-index: 2; min-height: 180px; object-fit: cover; }
         .car-image:hover { transform: scale(1.03) translateY(-5px); }
         .menu-column { display: flex; flex-direction: column; gap: 22px; min-width: 200px; }
         .word-btn { background: transparent; color: #ccc; border: none; padding: 10px 12px; font-size: 1.1em; font-weight: 600; font-family: 'Rajdhani', sans-serif; cursor: pointer; position: relative; text-align: center; transition: all 0.3s ease; text-transform: capitalize; letter-spacing: 1px; outline: none; }
@@ -47,6 +47,14 @@
         .bottom-menu { display: flex; justify-content: center; gap: 40px; margin-top: 10px; }
         .bottom-menu .word-btn { font-size: 1.25em; font-weight: 700; }
         #status-msg { margin-top: 18px; font-size: 1em; color: #888; min-height: 24px; text-align: center; padding: 8px; font-weight: 600; }
+
+        /* FUEL CARTRIDGES */
+        .fuel-cartridges { display: flex; gap: 8px; justify-content: center; margin-top: 4px; }
+        .fuel-cartridge { width: 32px; height: 14px; border-radius: 4px; border: 1px solid rgba(0,212,255,0.4); background: rgba(0,212,255,0.15); cursor: pointer; transition: all 0.3s; position: relative; overflow: hidden; }
+        .fuel-cartridge.full { background: linear-gradient(135deg, rgba(0,212,255,0.5), rgba(0,255,136,0.3)); border-color: var(--cyan); box-shadow: 0 0 6px rgba(0,212,255,0.4); }
+        .fuel-cartridge.empty { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); }
+        .fuel-cartridge:hover { transform: scale(1.1); }
+        .fuel-label { font-size: 0.72em; color: #888; text-align: center; letter-spacing: 1px; text-transform: uppercase; }
 
         /* MODAL */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(8px); z-index: 999; justify-content: center; align-items: center; padding: 20px; }
@@ -78,6 +86,15 @@
         .buy-car-btn { width: 100%; padding: 8px; background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,153,204,0.1)); border: 1px solid rgba(0,212,255,0.35); border-radius: 8px; color: var(--cyan); font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.88em; cursor: pointer; text-transform: uppercase; transition: all 0.25s; }
         .buy-car-btn:hover { background: rgba(0,212,255,0.2); color: #fff; }
         .buy-car-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+        /* DURABILITY BAR */
+        .dur-bar-wrap { margin-top: 6px; }
+        .dur-bar-label { display: flex; justify-content: space-between; font-size: 0.72em; color: #888; margin-bottom: 3px; }
+        .dur-bar-bg { background: rgba(255,255,255,0.07); border-radius: 50px; height: 5px; overflow: hidden; }
+        .dur-bar-fill { height: 100%; border-radius: 50px; transition: width 0.5s ease; }
+        .dur-high  { background: linear-gradient(90deg, var(--green), #00ff88cc); }
+        .dur-med   { background: linear-gradient(90deg, var(--gold), #ffaa00); }
+        .dur-low   { background: linear-gradient(90deg, var(--red), #ff6666); }
 
         /* RECOMPENSA 30 DIAS */
         .reward-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
@@ -203,74 +220,71 @@
     </style>
 </head>
 <body>
+
 <!-- TOP BAR -->
 <div class="top-bar">
     <div class="stats-container">
         <span>Puntaje: <strong id="puntaje">0</strong></span>
         <span>Nivel: <strong id="nivel-stat">1</strong></span>
-        <span>Gemas: <strong id="gemas-stat">3900.0</strong> 💎</span> <!-- Set initial balance to 3900 -->
+        <span>Gemas: <strong id="gemas-stat">3900.0</strong> 💎</span>
         <span>Gasolina: <strong id="gasolina">100%</strong></span>
         <span>Motor: <strong id="hp-stat">0 HP</strong></span>
     </div>
     <div id="ton-connect-button"></div>
 </div>
 
-<!-- GARAGE -->
-<div class="modal-overlay" id="modal-garage">
-    <div class="modal">
-        <div class="modal-header">
-            <span class="modal-title">🏠 Mi Garage</span>
-            <button class="modal-close" onclick="closeModal('modal-garage')">✕</button>
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    <div class="title-container">
+        <h1><span class="emoji">🏎️</span> Turbo Garage</h1>
+    </div>
+
+    <div class="layout-grid">
+        <!-- LEFT MENU -->
+        <div class="menu-column">
+            <button class="word-btn" onclick="openModal('modal-garage')">🏠 Mi Garage</button>
+            <button class="word-btn" onclick="openModal('modal-marketplace')">🏪 Marketplace</button>
+            <button class="word-btn" onclick="openModal('openModal')">🎁 Recompensa</button>
+            <button class="word-btn" onclick="openModal('modal-recompensa')">🎁 Recompensa Diaria</button>
+            <button class="word-btn" onclick="openModal('modal-logros')">🏅 Logros</button>
+            <button class="word-btn" onclick="openModal('modal-nivel')">⬆️ Nivel</button>
         </div>
-        <div class="modal-body">
-            <div class="tab-bar">
-                <button class="tab-btn active" onclick="switchTab(event,'garage','vehiculos')">🚗 Vehículos</button>
-                <button class="tab-btn" onclick="switchTab(event,'garage','cascos')">🪖 Cascos</button>
-                <button class="tab-btn" onclick="switchTab(event,'garage','guantes')">🥊 Guantes</button>
-                <button class="tab-btn" onclick="switchTab(event,'garage','botas')">👢 Botas</button>
-                <button class="tab-btn" onclick="switchTab(event,'garage','trajes')">🦺 Traje</button>
+
+        <!-- CAR DISPLAY -->
+        <div class="car-container">
+            <div class="car-base-glow"></div>
+            <img class="car-image" id="main-car-img"
+                 src="https://raw.githubusercontent.com/squadgamernft-star/TurboGarage/main/img/carro_320.jpg.png"
+                 alt="Tu carro activo"
+                 onerror="this.src='data:image/svg+xml,' + encodeURIComponent('<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 460 280\'><rect fill=\'%230a0a0a\' width=\'460\' height=\'280\'/><text x=\'230\' y=\'155\' text-anchor=\'middle\' font-size=\'80\' fill=\'%23333\'>🚗</text></svg>')">
+
+            <!-- Fuel Cartridges -->
+            <div>
+                <div class="fuel-label">⛽ Cartuchos de Combustible</div>
+                <div class="fuel-cartridges" id="fuel-cartridges">
+                    <div class="fuel-cartridge full" id="fuel-0" onclick="usarCombustible(0)" title="Cartucho 1"></div>
+                    <div class="fuel-cartridge full" id="fuel-1" onclick="usarCombustible(1)" title="Cartucho 2"></div>
+                    <div class="fuel-cartridge full" id="fuel-2" onclick="usarCombustible(2)" title="Cartucho 3"></div>
+                    <div class="fuel-cartridge full" id="fuel-3" onclick="usarCombustible(3)" title="Cartucho 4"></div>
+                </div>
             </div>
-            <div id="garage-vehiculos" class="tab-panel active">
-                <p style="color:#888;font-size:0.82em;margin-bottom:10px;">20 slots disponibles</p>
-                <div class="garage-grid" id="garage-grid-vehicles"></div>
-                <button class="primary-btn" onclick="closeModal('modal-garage');openModal('modal-marketplace')">🏪 Ir al Marketplace</button>
-            </div>
-            <div id="garage-cascos" class="tab-panel">
-                <div class="garage-grid" id="garage-grid-cascos"></div>
-                <div class="coming-soon-box">⏳ Cascos disponibles próximamente en el marketplace</div>
-            </div>
-            <div id="garage-guantes" class="tab-panel">
-                <div class="garage-grid" id="garage-grid-guantes"></div>
-                <div class="coming-soon-box">⏳ Guantes disponibles próximamente en el marketplace</div>
-            </div>
-            <div id="garage-botas" class="tab-panel">
-                <div class="garage-grid" id="garage-grid-botas"></div>
-                <div class="coming-soon-box">⏳ Botas disponibles próximamente en el marketplace</div>
-            </div>
-            <div id="garage-trajes" class="tab-panel">
-                <div class="garage-grid" id="garage-grid-trajes"></div>
-                <div class="coming-soon-box">⏳ Trajes disponibles próximamente en el marketplace</div>
-            </div>
+
+            <button class="primary-btn" onclick="openModal('modal-duelo-urbano')">⚔️ DUELO URBANO</button>
+        </div>
+
+        <!-- RIGHT MENU -->
+        <div class="menu-column">
+            <button class="word-btn" onclick="openModal('modal-duelo-callejero')">🛣️ Duelo Callejero</button>
+            <button class="word-btn" onclick="openModal('modal-torneo')">🏆 Torneo</button>
+            <button class="word-btn" onclick="openModal('modal-ranking')">📊 Ranking</button>
+            <button class="word-btn" onclick="openModal('modal-mantenimiento')">🔧 Mantenimiento</button>
+            <button class="word-btn" onclick="openModal('modal-deposito')">💎 Depósito</button>
+            <button class="word-btn" onclick="openModal('modal-retiro')">💸 Retiro</button>
         </div>
     </div>
+
+    <div id="status-msg"></div>
 </div>
-
-<script>
-
-// ── ESTADO ──────────────────────────────────────────────────
-let gemas = 3900, hp = 0, puntaje = 0, nivel = 1; // Set initial gems to 3900
-let carrosComprados = [1, 3, 5]; // Indexes of cars purchased to total 3900
-let rewardClaimed = false;
-
-// ── GARAGE ───────────────────────────────────────────────────
-function buildGarage() {
-    // Vehículos — 20 slots
-    let html = '';
-    for (let i = 0; i < 20; i++) {
-        const idx = carrosComprados[i];
-        if (idx !== undefined) {
-            const c = CARROS[idx];
-            html += `<div class="garage-slot-card occupied"><div class="gs-icon">🚗</div><div class="gs-name">${c.nombre}</div><div style="font-size
 
 <!-- ══════════ MODALES ══════════ -->
 
@@ -413,7 +427,7 @@ function buildGarage() {
         <div class="modal-body">
             <p style="color:#888;font-size:0.86em;margin-bottom:16px;">El precio depende del vehículo. Se paga en USDT vinculado a tu wallet TON.</p>
             <div id="mant-list"></div>
-            <div class="info-box" style="margin-top:4px;">💡 El mantenimiento restaura la gasolina al 100% y mejora el rendimiento del motor +10%.</div>
+            <div class="info-box" style="margin-top:4px;">💡 El mantenimiento restaura la gasolina al 100%, mejora el rendimiento del motor +10% y repara la durabilidad del vehículo.</div>
         </div>
     </div>
 </div>
@@ -563,34 +577,47 @@ function buildGarage() {
     </div>
 </div>
 
-
 <!-- ══════════ JAVASCRIPT ══════════ -->
 <script>
 
-// ── ESTADO ──────────────────────────────────────────────────
-let gemas = 0, hp = 0, puntaje = 0, nivel = 1;
+// ── ESTADO (único bloque, gemas inicial = 3900) ──────────────
+let gemas   = 3900;
+let hp      = 0;
+let puntaje = 0;
+let nivel   = 1;
+
+// Carros comprados por índice (0=Street Racer 320💎, 2=Nitro Hawk 1120💎, 4=Phantom GT 1760💎 → total 3200💎 gastadas, quedan 700)
+// Ajustado: 0(320) + 1(800) + 2(1120) = 2240 gastadas → saldo 1660. O simplemente arrancamos con 3900 y sin compras previas.
 let carrosComprados = [];
+
+// Durabilidad por índice de carro: { idx: porcentaje (0-100) }
+let durabilidades = {};
+
+// Cartuchos de combustible activos (4 en total, se recargan con mantenimiento)
+let fuelCartuchos = [true, true, true, true];
+
+// Fecha de último uso del combustible por cartucho (para calcular degaste diario)
+let fuelUsoDates = JSON.parse(localStorage.getItem('tg_fuel_uso') || '{}');
+
 let rewardClaimed = false;
 
-const WALLET = "UQCObIMiCLIWIdT9FVPZWz5jAWocxqhu6bYzwtJzEkkHAsaY";
+const WALLET   = "UQCObIMiCLIWIdT9FVPZWz5jAWocxqhu6bYzwtJzEkkHAsaY";
 const IMG_BASE = "https://raw.githubusercontent.com/squadgamernft-star/TurboGarage/main/img/";
+const IMG_FALLBACK = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100"><rect fill="#0a0a0a" width="160" height="100"/><text x="80" y="58" text-anchor="middle" font-size="36" fill="#333">🚗</text></svg>')}`;
 
 // ── CATÁLOGO ─────────────────────────────────────────────────
 const CARROS = [
-    { nombre:"Street Racer",   img:"carro_320.jpg.png",   precio:320,   hp:80,   mant:1  },
-    { nombre:"Urban Runner",   img:"carro_800.jpg.png",   precio:800,   hp:180,  mant:2  },
-    { nombre:"Nitro Hawk",     img:"carro_1120.jpg.png",  precio:1120,  hp:260,  mant:3  },
-    { nombre:"Turbo Viper",    img:"carro_1140.jpg.png",  precio:1140,  hp:270,  mant:3  },
-    { nombre:"Phantom GT",     img:"carro_1760.jpg.png",  precio:1760,  hp:380,  mant:5  },
-    { nombre:"Shadow X",       img:"carro_2080.jpg.png",  precio:2080,  hp:450,  mant:6  },
-    { nombre:"Eclipse Pro",    img:"carro_2720.jpg.png",  precio:2720,  hp:560,  mant:8  },
-    { nombre:"Storm King",     img:"carro_3040.jpg.png",  precio:3040,  hp:620,  mant:9  },
-    { nombre:"Apex Legend",    img:"carro_3840.jpg.png",  precio:3840,  hp:760,  mant:12 },
-    { nombre:"Hyper Beast",    img:"carro_4800.jpg.png",  precio:4800,  hp:950,  mant:15 },
+    { nombre:"Street Racer",  img:"carro_320.jpg.png",   precio:320,   hp:80,   mant:1  },
+    { nombre:"Urban Runner",  img:"carro_800.jpg.png",   precio:800,   hp:180,  mant:2  },
+    { nombre:"Nitro Hawk",    img:"carro_1120.jpg.png",  precio:1120,  hp:260,  mant:3  },
+    { nombre:"Turbo Viper",   img:"carro_1140.jpg.png",  precio:1140,  hp:270,  mant:3  },
+    { nombre:"Phantom GT",    img:"carro_1760.jpg.png",  precio:1760,  hp:380,  mant:5  },
+    { nombre:"Shadow X",      img:"carro_2080.jpg.png",  precio:2080,  hp:450,  mant:6  },
+    { nombre:"Eclipse Pro",   img:"carro_2720.jpg.png",  precio:2720,  hp:560,  mant:8  },
+    { nombre:"Storm King",    img:"carro_3040.jpg.png",  precio:3040,  hp:620,  mant:9  },
+    { nombre:"Apex Legend",   img:"carro_3840.jpg.png",  precio:3840,  hp:760,  mant:12 },
+    { nombre:"Hyper Beast",   img:"carro_4800.jpg.png",  precio:4800,  hp:950,  mant:15 },
 ];
-
-// Placeholder SVG para imagen rota
-const IMG_FALLBACK = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 100"><rect fill="#0a0a0a" width="160" height="100"/><text x="80" y="58" text-anchor="middle" font-size="36" fill="#333">🚗</text></svg>')}`;
 
 // ── HELPERS ──────────────────────────────────────────────────
 const $id = id => document.getElementById(id);
@@ -605,22 +632,112 @@ function mostrarMensaje(texto, color = '#888') {
 }
 
 function actualizarUI() {
-    $id('gemas-stat').textContent = gemas.toFixed(1);
-    $id('hp-stat').textContent    = hp + ' HP';
-    $id('puntaje').textContent    = puntaje;
-    $id('nivel-stat').textContent = nivel;
-    $id('modal-nivel-num').textContent = nivel;
+    $id('gemas-stat').textContent       = gemas.toFixed(1);
+    $id('hp-stat').textContent          = hp + ' HP';
+    $id('puntaje').textContent          = puntaje;
+    $id('nivel-stat').textContent       = nivel;
+    $id('modal-nivel-num').textContent  = nivel;
     const md = $id('market-gemas-display');
     if (md) md.textContent = gemas.toFixed(1) + ' 💎';
     const mr = $id('my-rank-score');
     if (mr) mr.textContent = puntaje + ' pts';
+    actualizarGasolina();
+    actualizarFuelUI();
+}
+
+function actualizarGasolina() {
+    const llenos = fuelCartuchos.filter(Boolean).length;
+    const pct    = Math.round((llenos / 4) * 100);
+    $id('gasolina').textContent = pct + '%';
+}
+
+// ── DURABILIDAD ──────────────────────────────────────────────
+// Devuelve la durabilidad actual de un carro (aplicando degradación diaria)
+function getDurabilidad(idx) {
+    if (durabilidades[idx] === undefined) durabilidades[idx] = 100;
+    return parseFloat(durabilidades[idx].toFixed(1));
+}
+
+function colorDurabilidad(pct) {
+    if (pct >= 60) return 'dur-high';
+    if (pct >= 30) return 'dur-med';
+    return 'dur-low';
+}
+
+// Reduce 0.8% por cada cartucho de combustible usado en el carro activo
+function reducirDurabilidad(idx) {
+    if (durabilidades[idx] === undefined) durabilidades[idx] = 100;
+    durabilidades[idx] = Math.max(0, durabilidades[idx] - 0.8);
+    saveDurabilidades();
+}
+
+function repararDurabilidad(idx) {
+    durabilidades[idx] = 100;
+    saveDurabilidades();
+}
+
+function saveDurabilidades() {
+    localStorage.setItem('tg_durabilidades', JSON.stringify(durabilidades));
+}
+
+function loadDurabilidades() {
+    const saved = localStorage.getItem('tg_durabilidades');
+    if (saved) durabilidades = JSON.parse(saved);
+}
+
+// ── CARTUCHOS DE COMBUSTIBLE ─────────────────────────────────
+function actualizarFuelUI() {
+    for (let i = 0; i < 4; i++) {
+        const el = $id(`fuel-${i}`);
+        if (!el) continue;
+        el.className = 'fuel-cartridge ' + (fuelCartuchos[i] ? 'full' : 'empty');
+        el.title     = `Cartucho ${i+1} — ${fuelCartuchos[i] ? 'Disponible' : 'Usado'}`;
+    }
+}
+
+function usarCombustible(idx) {
+    if (!fuelCartuchos[idx]) {
+        mostrarMensaje(`⚠️ Cartucho ${idx+1} ya fue usado. Haz mantenimiento para recargarlo.`, '#ffaa00');
+        return;
+    }
+    if (carrosComprados.length === 0) {
+        mostrarMensaje('⚠️ No tienes vehículos. ¡Compra uno en el Marketplace!', '#ffaa00');
+        return;
+    }
+    // Usar el cartucho en el primer carro del garage
+    const carroActivo = carrosComprados[0];
+    fuelCartuchos[idx] = false;
+    reducirDurabilidad(carroActivo);
+
+    const dur = getDurabilidad(carroActivo);
+    const c   = CARROS[carroActivo];
+    actualizarUI();
+
+    let msg = `⛽ Cartucho ${idx+1} usado en ${c.nombre}. Durabilidad: ${dur}%`;
+    let color = '#00d4ff';
+    if (dur < 30)  { msg += ' ⚠️ ¡Durabilidad crítica!'; color = '#ff4444'; }
+    else if (dur < 60) { msg += ' — Considera mantenimiento pronto'; color = '#ffaa00'; }
+
+    mostrarMensaje(msg, color);
+    saveFuelState();
+}
+
+function saveFuelState() {
+    localStorage.setItem('tg_fuel', JSON.stringify(fuelCartuchos));
+}
+
+function loadFuelState() {
+    const saved = localStorage.getItem('tg_fuel');
+    if (saved) fuelCartuchos = JSON.parse(saved);
 }
 
 // ── MODALES ──────────────────────────────────────────────────
 function openModal(id) {
-    $id(id).classList.add('active');
+    const el = $id(id);
+    if (!el) return;
+    el.classList.add('active');
     document.body.style.overflow = 'hidden';
-    if (id === 'modal-marketplace')   actualizarUI();
+    if (id === 'modal-marketplace')   { actualizarUI(); buildMarket(); }
     if (id === 'modal-recompensa')    checkRewardStatus();
     if (id === 'modal-garage')        buildGarage();
     if (id === 'modal-mantenimiento') buildMantenimiento();
@@ -628,7 +745,9 @@ function openModal(id) {
 }
 
 function closeModal(id) {
-    $id(id).classList.remove('active');
+    const el = $id(id);
+    if (!el) return;
+    el.classList.remove('active');
     document.body.style.overflow = '';
 }
 
@@ -639,10 +758,12 @@ document.querySelectorAll('.modal-overlay').forEach(ov => {
 // ── TABS ─────────────────────────────────────────────────────
 function switchTab(e, group, panel) {
     const modal = $id(`modal-${group}`);
+    if (!modal) return;
     modal.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     modal.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     e.currentTarget.classList.add('active');
-    $id(`${group}-${panel}`).classList.add('active');
+    const panelEl = $id(`${group}-${panel}`);
+    if (panelEl) panelEl.classList.add('active');
 }
 
 // ── MARKETPLACE ──────────────────────────────────────────────
@@ -667,10 +788,20 @@ function buildMarket() {
 function comprarCarro(idx) {
     const c = CARROS[idx];
     if (carrosComprados.includes(idx)) { mostrarMensaje('⚠️ Ya tienes este carro','#ffaa00'); return; }
-    if (gemas < c.precio) { mostrarMensaje(`❌ Faltan ${(c.precio-gemas).toFixed(1)} 💎 — Ve a "Depósito de Gemas"`,'#ff4444'); return; }
-    gemas -= c.precio; hp += c.hp; puntaje += Math.round(c.precio/10);
+    if (gemas < c.precio) { mostrarMensaje(`❌ Faltan ${(c.precio - gemas).toFixed(1)} 💎 — Ve a "Depósito de Gemas"`,'#ff4444'); return; }
+    gemas -= c.precio;
+    hp    += c.hp;
+    puntaje += Math.round(c.precio / 10);
     carrosComprados.push(idx);
+    durabilidades[idx] = 100; // nuevo carro, durabilidad completa
+    saveDurabilidades();
     actualizarUI();
+
+    // Actualizar imagen principal si es el primer carro
+    if (carrosComprados.length === 1) {
+        $id('main-car-img').src = IMG_BASE + c.img;
+    }
+
     const btn = $id(`buy-btn-${idx}`);
     if (btn) { btn.textContent = '✅ Comprado'; btn.disabled = true; }
     buildLogros();
@@ -684,15 +815,15 @@ function buildRewardDays() {
     const diaActual = parseInt(localStorage.getItem('tg_reward_day') || '1');
     let html = '';
     for (let d = 1; d <= 30; d++) {
-        const claimed  = d < diaActual;
-        const isToday  = d === diaActual;
-        const isDay30  = d === 30;
-        const isGold   = !isDay30 && d % 2 === 0;   // pares = oro, impares = gemas
+        const claimed = d < diaActual;
+        const isToday = d === diaActual;
+        const isDay30 = d === 30;
+        const isGold  = !isDay30 && d % 2 === 0;
         let cls = 'reward-day';
-        if (isDay30)      cls += ' special';
-        else if (isGold)  cls += ' gold-day';
-        if (claimed)      cls += ' claimed';
-        if (isToday)      cls += ' today';
+        if (isDay30)     cls += ' special';
+        else if (isGold) cls += ' gold-day';
+        if (claimed)     cls += ' claimed';
+        if (isToday)     cls += ' today';
         const icon  = isDay30 ? '🌟' : isGold ? '🪙' : '💎';
         const label = isDay30 ? '25💎' : isGold ? '🪙' : '0.1💎';
         html += `<div class="${cls}"><span class="day-icon">${icon}</span><div style="font-weight:700">${d}</div><small>${label}</small></div>`;
@@ -714,14 +845,16 @@ function claimReward() {
     const isDay30   = diaActual === 30;
     const isGold    = !isDay30 && diaActual % 2 === 0;
     let msg = '';
-    if (isDay30)       { gemas += 25; msg = '🌟 ¡Día 30! +25 💎'; }
-    else if (isGold)   { msg = '🪙 ¡Moneda de oro reclamada!'; }
-    else               { gemas += 0.1; msg = '💎 +0.1 💎 reclamadas'; }
+    if (isDay30)     { gemas += 25; msg = '🌟 ¡Día 30! +25 💎'; }
+    else if (isGold) { msg = '🪙 ¡Moneda de oro reclamada!'; }
+    else             { gemas += 0.1; msg = '💎 +0.1 💎 reclamadas'; }
     const sig = diaActual < 30 ? diaActual + 1 : 1;
     localStorage.setItem('tg_reward_day', String(sig));
     localStorage.setItem('tg_last_reward_date', new Date().toDateString());
-    rewardClaimed = true; puntaje += 1;
-    actualizarUI(); buildRewardDays();
+    rewardClaimed = true;
+    puntaje += 1;
+    actualizarUI();
+    buildRewardDays();
     const btn = $id('btn-claim-reward');
     if (btn) { btn.disabled = true; btn.textContent = '✅ Ya reclamada hoy'; }
     mostrarMensaje(msg, isDay30 ? '#a855f7' : isGold ? '#ffd700' : '#00ff88');
@@ -731,32 +864,32 @@ function claimReward() {
 // ── LOGROS ───────────────────────────────────────────────────
 const LOGROS = {
     carros: [
-        {meta:2,  icon:'🚗', t:'Primer Duo',         d:'Compra 2 carros'},
-        {meta:5,  icon:'🏎️', t:'Coleccionista',      d:'Compra 5 carros'},
-        {meta:10, icon:'🔥', t:'Flota Completa',     d:'Compra 10 carros'},
-        {meta:15, icon:'⚡', t:'Magnate del Motor',  d:'Compra 15 carros'},
-        {meta:20, icon:'👑', t:'Rey del Garage',     d:'Completa los 20 slots'},
+        { meta:2,  icon:'🚗', t:'Primer Duo',        d:'Compra 2 carros' },
+        { meta:5,  icon:'🏎️', t:'Coleccionista',     d:'Compra 5 carros' },
+        { meta:10, icon:'🔥', t:'Flota Completa',    d:'Compra 10 carros' },
+        { meta:15, icon:'⚡', t:'Magnate del Motor', d:'Compra 15 carros' },
+        { meta:20, icon:'👑', t:'Rey del Garage',    d:'Completa los 20 slots' },
     ],
     duelos: [
-        {meta:1,  icon:'🏁', t:'Primera Carrera',    d:'Completa 1 duelo'},
-        {meta:5,  icon:'⚔️', t:'Guerrero',           d:'Completa 5 duelos'},
-        {meta:10, icon:'🛡️', t:'Veterano',           d:'Completa 10 duelos'},
-        {meta:25, icon:'🏆', t:'Campeón',            d:'Completa 25 duelos'},
-        {meta:50, icon:'🌟', t:'Leyenda',            d:'Completa 50 duelos'},
+        { meta:1,  icon:'🏁', t:'Primera Carrera', d:'Completa 1 duelo' },
+        { meta:5,  icon:'⚔️', t:'Guerrero',        d:'Completa 5 duelos' },
+        { meta:10, icon:'🛡️', t:'Veterano',        d:'Completa 10 duelos' },
+        { meta:25, icon:'🏆', t:'Campeón',         d:'Completa 25 duelos' },
+        { meta:50, icon:'🌟', t:'Leyenda',         d:'Completa 50 duelos' },
     ],
     gemas: [
-        {meta:10,   icon:'💎', t:'Primeras Gemas',   d:'Acumula 10 💎'},
-        {meta:100,  icon:'💎', t:'Tesoro',           d:'Acumula 100 💎'},
-        {meta:500,  icon:'💎', t:'Cofre de Oro',     d:'Acumula 500 💎'},
-        {meta:1000, icon:'🏦', t:'Banco de Gemas',   d:'Acumula 1000 💎'},
-        {meta:5000, icon:'👑', t:'Magnate',          d:'Acumula 5000 💎'},
+        { meta:10,   icon:'💎', t:'Primeras Gemas', d:'Acumula 10 💎' },
+        { meta:100,  icon:'💎', t:'Tesoro',         d:'Acumula 100 💎' },
+        { meta:500,  icon:'💎', t:'Cofre de Oro',   d:'Acumula 500 💎' },
+        { meta:1000, icon:'🏦', t:'Banco de Gemas', d:'Acumula 1000 💎' },
+        { meta:5000, icon:'👑', t:'Magnate',        d:'Acumula 5000 💎' },
     ],
     tiempo: [
-        {meta:3,  icon:'📅', t:'Constante',          d:'3 días seguidos'},
-        {meta:7,  icon:'🔥', t:'Racha de Fuego',     d:'7 días seguidos'},
-        {meta:14, icon:'⚡', t:'Imparable',          d:'14 días seguidos'},
-        {meta:21, icon:'🌟', t:'Dedicado',           d:'21 días seguidos'},
-        {meta:30, icon:'👑', t:'Legendario',         d:'30 días seguidos'},
+        { meta:3,  icon:'📅', t:'Constante',    d:'3 días seguidos' },
+        { meta:7,  icon:'🔥', t:'Racha de Fuego', d:'7 días seguidos' },
+        { meta:14, icon:'⚡', t:'Imparable',    d:'14 días seguidos' },
+        { meta:21, icon:'🌟', t:'Dedicado',     d:'21 días seguidos' },
+        { meta:30, icon:'👑', t:'Legendario',   d:'30 días seguidos' },
     ],
 };
 
@@ -764,8 +897,8 @@ function getProgreso(tipo, meta) {
     const map = {
         carros: carrosComprados.length,
         duelos: 0,
-        gemas: Math.floor(gemas),
-        tiempo: Math.max(0, parseInt(localStorage.getItem('tg_reward_day')||'1') - 1),
+        gemas:  Math.floor(gemas),
+        tiempo: Math.max(0, parseInt(localStorage.getItem('tg_reward_day') || '1') - 1),
     };
     return { actual: map[tipo] || 0, meta };
 }
@@ -774,8 +907,8 @@ function buildLogrosList(tipo) {
     $id(`logros-${tipo}-list`).innerHTML = LOGROS[tipo].map(l => {
         const { actual, meta } = getProgreso(tipo, l.meta);
         const ok  = actual >= meta;
-        const pct = Math.min(100, Math.round(actual/meta*100));
-        return `<div class="logro-item ${ok?'desbloqueado':''}">
+        const pct = Math.min(100, Math.round(actual / meta * 100));
+        return `<div class="logro-item ${ok ? 'desbloqueado' : ''}">
             <span class="logro-icon">${l.icon}</span>
             <div class="logro-info">
                 <h4>${l.t}</h4>
@@ -783,7 +916,7 @@ function buildLogrosList(tipo) {
                 <div class="logro-progress"><div class="logro-progress-fill" style="width:${pct}%"></div></div>
             </div>
             <div class="logro-reward">
-                <span style="color:${ok?'var(--green)':'#555'}">${ok?'✅':'🔒'}</span><br>
+                <span style="color:${ok ? 'var(--green)' : '#555'}">${ok ? '✅' : '🔒'}</span><br>
                 <small style="color:var(--gold)">+2💎</small>
             </div>
         </div>`;
@@ -796,19 +929,41 @@ function buildLogros() {
 
 // ── GARAGE ───────────────────────────────────────────────────
 function buildGarage() {
-    // Vehículos — 20 slots
+    // Vehículos — 20 slots con durabilidad
     let html = '';
     for (let i = 0; i < 20; i++) {
         const idx = carrosComprados[i];
         if (idx !== undefined) {
-            const c = CARROS[idx];
-            html += `<div class="garage-slot-card occupied"><div class="gs-icon">🚗</div><div class="gs-name">${c.nombre}</div><div style="font-size:0.72em;color:#888;margin-top:2px">${c.hp}HP</div></div>`;
+            const c   = CARROS[idx];
+            const dur = getDurabilidad(idx);
+            const durClass = colorDurabilidad(dur);
+            let durLabel = dur >= 60 ? '🟢 Bueno' : dur >= 30 ? '🟡 Desgaste' : '🔴 Crítico';
+            html += `<div class="garage-slot-card occupied" title="${c.nombre} — Durabilidad: ${dur}%">
+                <div class="gs-icon">🚗</div>
+                <div class="gs-name">${c.nombre}</div>
+                <div style="font-size:0.7em;color:#888;margin-top:2px">${c.hp} HP</div>
+                <div class="dur-bar-wrap" style="padding:0 4px">
+                    <div class="dur-bar-label">
+                        <span style="font-size:0.65em">🔩 Dur.</span>
+                        <span style="font-size:0.65em;color:${dur >= 60 ? 'var(--green)' : dur >= 30 ? 'var(--gold)' : 'var(--red)'}">${dur}%</span>
+                    </div>
+                    <div class="dur-bar-bg">
+                        <div class="dur-bar-fill ${durClass}" style="width:${dur}%"></div>
+                    </div>
+                    <div style="font-size:0.6em;text-align:center;margin-top:2px;color:#666">${durLabel}</div>
+                </div>
+            </div>`;
         } else {
-            html += `<div class="garage-slot-card"><div class="gs-icon">➕</div><div class="gs-name">Slot ${i+1}</div><div style="font-size:0.7em;color:#333;margin-top:2px">Vacío</div></div>`;
+            html += `<div class="garage-slot-card">
+                <div class="gs-icon">➕</div>
+                <div class="gs-name">Slot ${i+1}</div>
+                <div style="font-size:0.7em;color:#333;margin-top:2px">Vacío</div>
+            </div>`;
         }
     }
     $id('garage-grid-vehicles').innerHTML = html;
-    // Equipo
+
+    // Equipamiento
     const equipos = { cascos:'🪖', guantes:'🥊', botas:'👢', trajes:'🦺' };
     Object.entries(equipos).forEach(([tipo, icon]) => {
         let h = '';
@@ -825,14 +980,27 @@ function buildMantenimiento() {
         return;
     }
     lista.innerHTML = carrosComprados.map(idx => {
-        const c = CARROS[idx];
+        const c   = CARROS[idx];
+        const dur = getDurabilidad(idx);
+        const durClass = colorDurabilidad(dur);
         return `<div class="mant-item">
             <span class="mant-icon">🚗</span>
-            <div class="mant-info"><h4>${c.nombre}</h4><p>⚡ ${c.hp} HP · Gasolina: 100%</p></div>
+            <div class="mant-info">
+                <h4>${c.nombre}</h4>
+                <p>⚡ ${c.hp} HP</p>
+                <div class="dur-bar-wrap" style="margin-top:6px">
+                    <div class="dur-bar-label">
+                        <span>🔩 Durabilidad</span>
+                        <span style="color:${dur >= 60 ? 'var(--green)' : dur >= 30 ? 'var(--gold)' : 'var(--red)'}">${dur}%</span>
+                    </div>
+                    <div class="dur-bar-bg"><div class="dur-bar-fill ${durClass}" style="width:${dur}%"></div></div>
+                    <div style="font-size:0.74em;color:#666;margin-top:3px">📉 -0.8% por cartucho de combustible usado</div>
+                </div>
+            </div>
             <div class="mant-price">
                 <strong>$${c.mant} USDT</strong>
                 <small>Mantenimiento</small>
-                <button class="mant-btn" onclick="pagarMantenimiento(${idx})">Pagar</button>
+                <button class="mant-btn" onclick="pagarMantenimiento(${idx})">Reparar & Recargar</button>
             </div>
         </div>`;
     }).join('');
@@ -840,22 +1008,44 @@ function buildMantenimiento() {
 
 async function pagarMantenimiento(idx) {
     const c = CARROS[idx];
-    if (!tonConnectUI.connected) { mostrarMensaje('⚠️ Conecta tu wallet primero','#ffaa00'); tonConnectUI.openModal(); return; }
+    if (!window.tonConnectUI || !tonConnectUI.connected) {
+        mostrarMensaje('⚠️ Conecta tu wallet primero','#ffaa00');
+        tonConnectUI.openModal();
+        return;
+    }
     mostrarMensaje(`⏳ Procesando $${c.mant} USDT...`,'#00d4ff');
     const ton = (c.mant / 5).toFixed(4);
-    const tx = { validUntil: Math.floor(Date.now()/1000)+300, messages: [{ address: WALLET, amount: String(Math.round(parseFloat(ton)*1e9)) }] };
-    try { await tonConnectUI.sendTransaction(tx); mostrarMensaje(`✅ Mantenimiento de ${c.nombre} listo`,'#00ff88'); closeModal('modal-mantenimiento'); }
-    catch(e) { mostrarMensaje('❌ Transacción cancelada','#ff4444'); }
+    const tx  = { validUntil: Math.floor(Date.now()/1000)+300, messages: [{ address: WALLET, amount: String(Math.round(parseFloat(ton)*1e9)) }] };
+    try {
+        await tonConnectUI.sendTransaction(tx);
+        repararDurabilidad(idx);
+        fuelCartuchos = [true, true, true, true]; // recarga los 4 cartuchos
+        saveFuelState();
+        actualizarUI();
+        buildMantenimiento();
+        mostrarMensaje(`✅ ${c.nombre} reparado al 100% + cartuchos recargados`,'#00ff88');
+        closeModal('modal-mantenimiento');
+    } catch(e) {
+        mostrarMensaje('❌ Transacción cancelada','#ff4444');
+    }
 }
 
 // ── TORNEO ───────────────────────────────────────────────────
 async function pagarTorneo() {
-    if (!tonConnectUI.connected) { mostrarMensaje('⚠️ Conecta tu wallet primero','#ffaa00'); tonConnectUI.openModal(); return; }
+    if (!window.tonConnectUI || !tonConnectUI.connected) {
+        mostrarMensaje('⚠️ Conecta tu wallet primero','#ffaa00');
+        tonConnectUI.openModal();
+        return;
+    }
     mostrarMensaje('⏳ Procesando inscripción $5 USDT...','#00d4ff');
-    const ton = (5/5).toFixed(4);
-    const tx = { validUntil: Math.floor(Date.now()/1000)+300, messages: [{ address: WALLET, amount: String(Math.round(parseFloat(ton)*1e9)) }] };
-    try { await tonConnectUI.sendTransaction(tx); mostrarMensaje('✅ ¡Inscrito al torneo! Buena suerte 🏆','#ffd700'); closeModal('modal-torneo'); }
-    catch(e) { mostrarMensaje('❌ Transacción cancelada','#ff4444'); }
+    const tx = { validUntil: Math.floor(Date.now()/1000)+300, messages: [{ address: WALLET, amount: String(Math.round(1e9)) }] };
+    try {
+        await tonConnectUI.sendTransaction(tx);
+        mostrarMensaje('✅ ¡Inscrito al torneo! Buena suerte 🏆','#ffd700');
+        closeModal('modal-torneo');
+    } catch(e) {
+        mostrarMensaje('❌ Transacción cancelada','#ff4444');
+    }
 }
 
 // ── CALLEJERO ────────────────────────────────────────────────
@@ -865,29 +1055,51 @@ function unirseCallejero(mapa) {
 
 // ── RETIRO ───────────────────────────────────────────────────
 function retirar() {
-    if (!tonConnectUI.connected) { mostrarMensaje('⚠️ Conecta tu wallet primero','#ffaa00'); closeModal('modal-retiro'); tonConnectUI.openModal(); return; }
-    const cant = parseFloat($id('retiro-cantidad').value)||0;
-    if (cant < 500) { mostrarMensaje('❌ Mínimo de retiro: 500 💎','#ff4444'); return; }
-    if (cant > gemas) { mostrarMensaje(`❌ No tienes ${cant} 💎`,'#ff4444'); return; }
+    if (!window.tonConnectUI || !tonConnectUI.connected) {
+        mostrarMensaje('⚠️ Conecta tu wallet primero','#ffaa00');
+        closeModal('modal-retiro');
+        tonConnectUI.openModal();
+        return;
+    }
+    const cant = parseFloat($id('retiro-cantidad').value) || 0;
+    if (cant < 500)    { mostrarMensaje('❌ Mínimo de retiro: 500 💎','#ff4444'); return; }
+    if (cant > gemas)  { mostrarMensaje(`❌ No tienes ${cant} 💎`,'#ff4444'); return; }
     mostrarMensaje('🔜 Retiro solicitado — Se procesará en 24h','#ffaa00');
     closeModal('modal-retiro');
 }
 
 // ── COMPRAR GEMAS ────────────────────────────────────────────
 async function comprarGemas(cantidad, tonAmount) {
-    if (!tonConnectUI.connected) { mostrarMensaje('⚠️ Conecta tu wallet primero','#ffaa00'); closeModal('modal-deposito'); tonConnectUI.openModal(); return; }
+    if (!window.tonConnectUI || !tonConnectUI.connected) {
+        mostrarMensaje('⚠️ Conecta tu wallet primero','#ffaa00');
+        closeModal('modal-deposito');
+        tonConnectUI.openModal();
+        return;
+    }
     mostrarMensaje('⏳ Procesando pago...','#00d4ff');
     const tx = { validUntil: Math.floor(Date.now()/1000)+300, messages: [{ address: WALLET, amount: String(Math.round(tonAmount*1e9)) }] };
-    try { await tonConnectUI.sendTransaction(tx); gemas += cantidad; actualizarUI(); mostrarMensaje(`✅ +${cantidad} 💎 añadidas`,'#00ff88'); closeModal('modal-deposito'); }
-    catch(e) { mostrarMensaje('❌ Transacción cancelada','#ff4444'); }
+    try {
+        await tonConnectUI.sendTransaction(tx);
+        gemas += cantidad;
+        actualizarUI();
+        mostrarMensaje(`✅ +${cantidad} 💎 añadidas`,'#00ff88');
+        closeModal('modal-deposito');
+    } catch(e) {
+        mostrarMensaje('❌ Transacción cancelada','#ff4444');
+    }
 }
 
 // ── TONCONNECT ───────────────────────────────────────────────
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-    manifestUrl: 'https://turbo-garage-two.vercel.app/tonconnect-manifest.json',
-    buttonRootId: 'ton-connect-button'
-});
-tonConnectUI.onStatusChange(w => mostrarMensaje(w ? '✅ Wallet conectada' : 'Wallet desconectada', w ? '#00ff88' : '#888'));
+let tonConnectUI;
+try {
+    tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+        manifestUrl: 'https://turbo-garage-two.vercel.app/tonconnect-manifest.json',
+        buttonRootId: 'ton-connect-button'
+    });
+    tonConnectUI.onStatusChange(w => mostrarMensaje(w ? '✅ Wallet conectada' : 'Wallet desconectada', w ? '#00ff88' : '#888'));
+} catch(e) {
+    console.warn('TonConnect no disponible:', e);
+}
 
 // ── TELEGRAM ─────────────────────────────────────────────────
 if (window.Telegram?.WebApp) {
@@ -898,7 +1110,10 @@ if (window.Telegram?.WebApp) {
 }
 
 // ── INIT ─────────────────────────────────────────────────────
+loadDurabilidades();
+loadFuelState();
 actualizarUI();
+buildMarket();
 buildLogros();
 
 </script>
