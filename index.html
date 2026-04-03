@@ -216,39 +216,62 @@
     <div id="ton-connect-button"></div>
 </div>
 
-<!-- MAIN -->
-<div class="main-content">
-    <div class="title-container">
-        <h1><span class="emoji">🚗</span> TURBO GARAGE</h1>
-    </div>
-    <div class="layout-grid">
-        <div class="menu-column left-menu">
-            <button class="primary-btn" onclick="openModal('modal-recompensa')">Recompensa diaria</button> <!-- Changed button design -->
-            <button class="primary-btn" onclick="openModal('modal-logros')">Logros</button> <!-- Changed button design -->
-            <button class="primary-btn" onclick="openModal('modal-nivel')">Nivel</button> <!-- Changed button design -->
-            <button class="primary-btn" onclick="openModal('modal-retiro')">Retiro de gemas</button> <!-- Changed button design -->
-            <button class="primary-btn" onclick="openModal('modal-duelo-urbano')">Duelo urbano</button> <!-- Changed button design -->
+<!-- GARAGE -->
+<div class="modal-overlay" id="modal-garage">
+    <div class="modal">
+        <div class="modal-header">
+            <span class="modal-title">🏠 Mi Garage</span>
+            <button class="modal-close" onclick="closeModal('modal-garage')">✕</button>
         </div>
-        <div class="car-container">
-            <div class="car-base-glow"></div>
-            <img src="car.jpg" alt="Mi Carro" class="car-image">
-            <button class="primary-btn" onclick="openModal('modal-marketplace')">🏪 Market Place</button>
+        <div class="modal-body">
+            <div class="tab-bar">
+                <button class="tab-btn active" onclick="switchTab(event,'garage','vehiculos')">🚗 Vehículos</button>
+                <button class="tab-btn" onclick="switchTab(event,'garage','cascos')">🪖 Cascos</button>
+                <button class="tab-btn" onclick="switchTab(event,'garage','guantes')">🥊 Guantes</button>
+                <button class="tab-btn" onclick="switchTab(event,'garage','botas')">👢 Botas</button>
+                <button class="tab-btn" onclick="switchTab(event,'garage','trajes')">🦺 Traje</button>
+            </div>
+            <div id="garage-vehiculos" class="tab-panel active">
+                <p style="color:#888;font-size:0.82em;margin-bottom:10px;">20 slots disponibles</p>
+                <div class="garage-grid" id="garage-grid-vehicles"></div>
+                <button class="primary-btn" onclick="closeModal('modal-garage');openModal('modal-marketplace')">🏪 Ir al Marketplace</button>
+            </div>
+            <div id="garage-cascos" class="tab-panel">
+                <div class="garage-grid" id="garage-grid-cascos"></div>
+                <div class="coming-soon-box">⏳ Cascos disponibles próximamente en el marketplace</div>
+            </div>
+            <div id="garage-guantes" class="tab-panel">
+                <div class="garage-grid" id="garage-grid-guantes"></div>
+                <div class="coming-soon-box">⏳ Guantes disponibles próximamente en el marketplace</div>
+            </div>
+            <div id="garage-botas" class="tab-panel">
+                <div class="garage-grid" id="garage-grid-botas"></div>
+                <div class="coming-soon-box">⏳ Botas disponibles próximamente en el marketplace</div>
+            </div>
+            <div id="garage-trajes" class="tab-panel">
+                <div class="garage-grid" id="garage-grid-trajes"></div>
+                <div class="coming-soon-box">⏳ Trajes disponibles próximamente en el marketplace</div>
+            </div>
         </div>
-        <div class="menu-column right-menu">
-            <button class="primary-btn" onclick="openModal('modal-mantenimiento')">Mantenimiento</button> <!-- Changed button design -->
-            <button class="primary-btn" onclick="openModal('modal-garage')">Garage</button> <!-- Changed button design -->
-            <button class="primary-btn" onclick="openModal('modal-ranking')">Ranking</button> <!-- Changed button design -->
-            <button class="primary-btn" onclick="openModal('modal-deposito')">Deposito de Gemas</button> <!-- Changed button design -->
-            <button class="primary-btn" onclick="openModal('modal-duelo-callejero')">Duelo Callejero</button> <!-- Changed button design -->
-        </div>
-    </div>
-    <div class="bottom-menu">
-        <button class="primary-btn" onclick="openModal('modal-torneo')">Torneo</button> <!-- Changed button design -->
     </div>
 </div>
-<p id="status-msg"></p>
 
+<script>
 
+// ── ESTADO ──────────────────────────────────────────────────
+let gemas = 3900, hp = 0, puntaje = 0, nivel = 1; // Set initial gems to 3900
+let carrosComprados = [1, 3, 5]; // Indexes of cars purchased to total 3900
+let rewardClaimed = false;
+
+// ── GARAGE ───────────────────────────────────────────────────
+function buildGarage() {
+    // Vehículos — 20 slots
+    let html = '';
+    for (let i = 0; i < 20; i++) {
+        const idx = carrosComprados[i];
+        if (idx !== undefined) {
+            const c = CARROS[idx];
+            html += `<div class="garage-slot-card occupied"><div class="gs-icon">🚗</div><div class="gs-name">${c.nombre}</div><div style="font-size
 
 <!-- ══════════ MODALES ══════════ -->
 
