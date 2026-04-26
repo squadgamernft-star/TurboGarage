@@ -1915,14 +1915,25 @@ ${entry.qty>1?`<div class="squad-slot-qty">#${copy+1}</div>`:''}
             cw:0,ch:0,
         };
 
-        // Pre-cargar imagen del NFT seleccionado para usarla como sprite
+        // Pre-cargar imagen del NFT — SIN crossOrigin para evitar bloqueo CORS de GitHub
         try{
             const img=new Image();
-            img.crossOrigin='anonymous';
-            img.onload=()=>{ if(_gameState){_gameState.nftImg=img; _gameState.nftImgLoaded=true;} };
-            img.onerror=()=>{ if(_gameState){_gameState.nftImgLoaded=false;} };
+            // NO usar crossOrigin para imágenes de GitHub (bloquea CORS)
+            img.onload=()=>{ if(_gameState){ _gameState.nftImg=img; _gameState.nftImgLoaded=true; } };
+            img.onerror=()=>{
+                // Fallback: generar SVG del jugador y usarlo como imagen
+                if(_gameState){
+                    const svgSrc='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(generatePlayerSVG(player));
+                    const img2=new Image();
+                    img2.onload=()=>{ if(_gameState){ _gameState.nftImg=img2; _gameState.nftImgLoaded=true; } };
+                    img2.src=svgSrc;
+                    _gameState.nftImg=img2;
+                }
+            };
             img.src=playerImgSrc(idx);
             _gameState.nftImg=img;
+            // Si ya tiene src data:// (SVG fallback), carga inmediato
+            if(img.complete && img.naturalWidth>0){ _gameState.nftImgLoaded=true; }
         }catch(e){}
 
         // ── INTRO ────────────────────────────────────────────────────────
@@ -2497,77 +2508,144 @@ ${entry.qty>1?`<div class="squad-slot-qty">#${copy+1}</div>`:''}
         }
 
         function drawNftPlayer(ctx,x,y,img,loaded,c1,c2,label,isControl,hasBall){
-            const R = isControl ? 20 : 16;   // radio más grande para el jugador controlado
-            // Sombra suelo
-            ctx.fillStyle='rgba(0,0,0,0.35)';
-            ctx.beginPath();ctx.ellipse(x,y+R+4,R*0.85,R*0.28,0,0,Math.PI*2);ctx.fill();
-            // Aura/glow si está controlado
+            const R = isControl ? 22 : 17;   // radio — controlado más grande
+            // ── Sombra suelo ────────────────────────────────────────────────
+            ctx.fillStyle='rgba(0,0,0,0.4)';
+            ctx.beginPath();ctx.ellipse(x,y+R+5,R*0.9,R*0.3,0,0,Math.PI*2);ctx.fill();
+
+            // ── Aura del jugador controlado ─────────────────────────────────
             if(isControl){
+                // Pulso verde animado
+                const pulse=0.6+0.4*Math.sin(Date.now()/200);
                 ctx.save();
-                ctx.shadowColor='#00ff88';ctx.shadowBlur=18;
-                ctx.strokeStyle='#00ff88';ctx.lineWidth=2.5;
-                ctx.beginPath();ctx.arc(x,y,R+3,0,Math.PI*2);ctx.stroke();
+                ctx.globalAlpha=0.5*pulse;
+                ctx.fillStyle='#00ff88';
+                ctx.beginPath();ctx.arc(x,y,R+8,0,Math.PI*2);ctx.fill();
+                ctx.globalAlpha=1;
                 ctx.restore();
+                ctx.strokeStyle='#00ff88';ctx.lineWidth=3;
+                ctx.shadowColor='#00ff88';ctx.shadowBlur=14;
+                ctx.beginPath();ctx.arc(x,y,R+4,0,Math.PI*2);ctx.stroke();
+                ctx.shadowBlur=0;
             }
-            // Círculo base del color NFT
+
+            // ── Círculo base (color del equipo) ─────────────────────────────
             ctx.fillStyle=c1;
             ctx.beginPath();ctx.arc(x,y,R+2,0,Math.PI*2);ctx.fill();
-            // Imagen del NFT circular — más grande y visible
-            if(loaded&&img){
+
+            // ── Intentar dibujar imagen NFT ─────────────────────────────────
+            let drewImage=false;
+            if(loaded && img && img.naturalWidth>0){
                 ctx.save();
                 ctx.beginPath();ctx.arc(x,y,R,0,Math.PI*2);ctx.clip();
-                try{ ctx.drawImage(img, x-R, y-R, R*2, R*2); }catch(e){}
+                try{
+                    ctx.drawImage(img, x-R, y-R, R*2, R*2);
+                    drewImage=true;
+                }catch(e){ drewImage=false; }
                 ctx.restore();
-            } else {
-                ctx.fillStyle=c2;
-                ctx.beginPath();ctx.arc(x,y,R-2,0,Math.PI*2);ctx.fill();
-                ctx.fillStyle=c1;
-                ctx.font=`bold ${R-4}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-                ctx.fillText(label,x,y);
             }
-            // Borde brillante
-            ctx.strokeStyle=isControl?'#00ff88':c2;
-            ctx.lineWidth=isControl?3:2;
+
+            // ── Fallback visual: silueta de jugador con colores NFT ─────────
+            if(!drewImage){
+                // Fondo degradado
+                const grd=ctx.createRadialGradient(x,y-R*0.2,R*0.1, x,y,R);
+                grd.addColorStop(0,c2||'#ffffff');
+                grd.addColorStop(1,c1);
+                ctx.save();
+                ctx.beginPath();ctx.arc(x,y,R,0,Math.PI*2);ctx.clip();
+                ctx.fillStyle=grd;ctx.fillRect(x-R,y-R,R*2,R*2);
+                // Silueta jugador: cabeza
+                ctx.fillStyle='rgba(255,220,180,0.9)';
+                ctx.beginPath();ctx.arc(x,y-R*0.3,R*0.38,0,Math.PI*2);ctx.fill();
+                // Cuerpo / camiseta
+                ctx.fillStyle=c1;
+                ctx.beginPath();
+                ctx.moveTo(x-R*0.55,y+R*0.1);
+                ctx.quadraticCurveTo(x,y-R*0.05,x+R*0.55,y+R*0.1);
+                ctx.quadraticCurveTo(x+R*0.6,y+R*0.7,x,y+R*0.8);
+                ctx.quadraticCurveTo(x-R*0.6,y+R*0.7,x-R*0.55,y+R*0.1);
+                ctx.fill();
+                // Número de camiseta
+                ctx.fillStyle=c2||'#fff';
+                ctx.font=`bold ${R*0.55}px Orbitron,sans-serif`;
+                ctx.textAlign='center';ctx.textBaseline='middle';
+                ctx.fillText(label,x,y+R*0.35);
+                ctx.restore();
+            }
+
+            // ── Borde brillante ─────────────────────────────────────────────
+            ctx.strokeStyle=isControl?'#00ff88':c2||'#ffffff';
+            ctx.lineWidth=isControl?3.5:2;
             ctx.beginPath();ctx.arc(x,y,R,0,Math.PI*2);ctx.stroke();
-            // Número/etiqueta inferior
-            ctx.fillStyle='rgba(0,0,0,0.82)';
-            roundRect2(ctx,x-11,y+R+2,22,12,4);ctx.fill();
-            ctx.fillStyle=isControl?'#00ff88':'#fff';
+
+            // ── Etiqueta nombre/rol debajo ───────────────────────────────────
+            ctx.fillStyle='rgba(0,0,0,0.85)';
+            roundRect2(ctx,x-13,y+R+3,26,13,4);ctx.fill();
+            ctx.fillStyle=isControl?'#00ff88':'#ffffff';
             ctx.font='bold 8px Orbitron,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-            ctx.fillText(label,x,y+R+8);
-            // Indicador de pelota
+            ctx.fillText(label,x,y+R+9.5);
+
+            // ── Indicador de pelota ─────────────────────────────────────────
             if(hasBall){
-                ctx.fillStyle='#fff';ctx.strokeStyle='#222';ctx.lineWidth=1.2;
-                ctx.beginPath();ctx.arc(x+R-2,y-R+2,5,0,Math.PI*2);ctx.fill();ctx.stroke();
-                // mini "⚽" indicador
-                ctx.fillStyle='#222';ctx.font='7px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-                ctx.fillText('⚽',x+R-2,y-R+2);
+                ctx.save();
+                ctx.fillStyle='#ffffff';ctx.strokeStyle='#222';ctx.lineWidth=1.5;
+                ctx.shadowColor='rgba(255,255,255,0.8)';ctx.shadowBlur=6;
+                ctx.beginPath();ctx.arc(x+R-1,y-R+1,6,0,Math.PI*2);ctx.fill();ctx.stroke();
+                ctx.shadowBlur=0;
+                // Hexágono del balón
+                ctx.fillStyle='#333';
+                ctx.font='8px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+                ctx.fillText('⚽',x+R-1,y-R+1);
+                ctx.restore();
             }
         }
 
         function drawOppPlayer(ctx,x,y,c1,c2,label,hasBall){
-            const R = 15;
-            ctx.fillStyle='rgba(0,0,0,0.3)';
-            ctx.beginPath();ctx.ellipse(x,y+R+4,R*0.85,R*0.28,0,0,Math.PI*2);ctx.fill();
+            const R=16;
+            // Sombra suelo
+            ctx.fillStyle='rgba(0,0,0,0.35)';
+            ctx.beginPath();ctx.ellipse(x,y+R+5,R*0.9,R*0.3,0,0,Math.PI*2);ctx.fill();
+            // Círculo exterior (borde)
             ctx.fillStyle=c1;
             ctx.beginPath();ctx.arc(x,y,R+2,0,Math.PI*2);ctx.fill();
-            // Patrón de jersey rival
-            ctx.fillStyle=c2;
-            ctx.beginPath();ctx.arc(x,y,R-1,0,Math.PI*2);ctx.fill();
-            ctx.fillStyle=c1;
-            ctx.beginPath();ctx.arc(x,y,R-5,0,Math.PI*2);ctx.fill();
-            ctx.strokeStyle=c2;ctx.lineWidth=2;
-            ctx.beginPath();ctx.arc(x,y,R-1,0,Math.PI*2);ctx.stroke();
-            ctx.fillStyle='#fff';
-            ctx.font=`bold ${label==='GK'?9:10}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-            ctx.fillText(label,x,y);
-            ctx.fillStyle='rgba(0,0,0,0.8)';
-            roundRect2(ctx,x-11,y+R+2,22,12,4);ctx.fill();
+            // Interior con silueta
+            ctx.save();
+            ctx.beginPath();ctx.arc(x,y,R,0,Math.PI*2);ctx.clip();
+            // Fondo degradado rival
+            const grd=ctx.createRadialGradient(x,y-R*0.2,R*0.1, x,y,R);
+            grd.addColorStop(0,'#ff6666');grd.addColorStop(1,'#880000');
+            ctx.fillStyle=grd;ctx.fillRect(x-R,y-R,R*2,R*2);
+            // Silueta cabeza
+            ctx.fillStyle='rgba(255,220,180,0.85)';
+            ctx.beginPath();ctx.arc(x,y-R*0.3,R*0.36,0,Math.PI*2);ctx.fill();
+            // Camiseta roja rival
+            ctx.fillStyle='#cc1111';
+            ctx.beginPath();
+            ctx.moveTo(x-R*0.55,y+R*0.1);
+            ctx.quadraticCurveTo(x,y-R*0.05,x+R*0.55,y+R*0.1);
+            ctx.quadraticCurveTo(x+R*0.6,y+R*0.7,x,y+R*0.8);
+            ctx.quadraticCurveTo(x-R*0.6,y+R*0.7,x-R*0.55,y+R*0.1);
+            ctx.fill();
+            // Número
+            ctx.fillStyle='#ffffff';
+            ctx.font=`bold ${R*0.52}px Orbitron,sans-serif`;
+            ctx.textAlign='center';ctx.textBaseline='middle';
+            ctx.fillText(label,x,y+R*0.35);
+            ctx.restore();
+            // Borde
+            ctx.strokeStyle='#ff4444';ctx.lineWidth=2;
+            ctx.beginPath();ctx.arc(x,y,R,0,Math.PI*2);ctx.stroke();
+            // Etiqueta
+            ctx.fillStyle='rgba(0,0,0,0.85)';
+            roundRect2(ctx,x-13,y+R+3,26,13,4);ctx.fill();
             ctx.fillStyle='#ffaaaa';ctx.font='bold 8px Orbitron,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-            ctx.fillText(label,x,y+R+8);
+            ctx.fillText(label,x,y+R+9.5);
+            // Pelota
             if(hasBall){
-                ctx.fillStyle='#fff';ctx.strokeStyle='#222';ctx.lineWidth=1.2;
-                ctx.beginPath();ctx.arc(x+R-2,y-R+2,5,0,Math.PI*2);ctx.fill();ctx.stroke();
+                ctx.fillStyle='#fff';ctx.strokeStyle='#222';ctx.lineWidth=1.5;
+                ctx.beginPath();ctx.arc(x+R-1,y-R+1,6,0,Math.PI*2);ctx.fill();ctx.stroke();
+                ctx.fillStyle='#333';ctx.font='8px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+                ctx.fillText('⚽',x+R-1,y-R+1);
             }
         }
 
